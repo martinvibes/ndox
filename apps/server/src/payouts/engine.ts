@@ -172,7 +172,9 @@ export async function planPayoutRun(ctx: PayoutCtx, attestationId: string): Prom
 
   const windowStart = new Date(report.announcement!.window.start);
   const coverAt = ctx.replay?.coverAt ?? windowStart;
-  const covered = eligiblePolicies(ctx.db, att.site, coverAt, { demoOnly: replay });
+  // Replays pay demo crews only; a real wallet never pays demo policies; FakeWallet pays all.
+  const demo = replay ? true : ctx.wallet.simulated ? undefined : false;
+  const covered = eligiblePolicies(ctx.db, att.site, coverAt, demo === undefined ? {} : { demo });
   if (covered.length === 0)
     return record({ ...base, status: 'no_payout', verification, detail: 'no covered policy' });
 

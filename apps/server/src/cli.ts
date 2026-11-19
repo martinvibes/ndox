@@ -26,6 +26,8 @@ import {
   type OracleCtx,
 } from './oracle/jobs.js';
 import { runReplay } from './oracle/replay.js';
+import { runPayoutJobs } from './payouts/engine.js';
+import { payReplay } from './payouts/replay.js';
 import { tick } from './scheduler/tick.js';
 import { createServices } from './services.js';
 
@@ -37,8 +39,11 @@ Live oracle (ORACLE_SECRET):
   fetch    [--site S] [--date D]         store both models' raw forecasts (default: today)
   attest   [--site S] [--date D]         sign today's outcome (default: today)
            --dry-run                     sign and store, but do not publish to relays
+Money (POOL_SECRET, WALLET_MODE):
+  payouts                                plan, pay and publish now (what the scheduler does each minute)
 Demo:
-  replay --site S --date D [--publish]   replay a past day with the demo key (tag ndox-replay)
+  replay --site S --date D [--publish]   replay a past day with the demo key (tag ndox-replay);
+         [--no-pay]                      a danger day pays the demo crews from a simulated wallet
 Tools:
   verify --event EVENT_ID                re-run the public verifier on stored events
   migrate                                apply database migrations and exit
@@ -53,6 +58,7 @@ const { positionals, values } = parseArgs({
     event: { type: 'string' },
     'dry-run': { type: 'boolean', default: false },
     publish: { type: 'boolean', default: false },
+    'no-pay': { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h', default: false },
   },
 });
@@ -173,7 +179,39 @@ try {
         console.log(`  ${c.ok ? '✓' : '✗'} ${c.id}${c.detail ? ` — ${c.detail}` : ''}`);
       console.log(`  event: ${r.eventId}`);
       if (!r.verification.ok) process.exitCode = 1;
+      if (r.outcome === 'danger' && r.verification.ok && !values['no-pay']) {
+        const p = await payReplay(services.money, r, services.replayPayouts);
+        console.log(
+          `  payouts (Simulé, ${p.at}): ${p.paid}/${p.policies} demo crew(s) paid, ${p.paidSat} sats` +
+            (p.shortfallSat ? `, shortfall ${p.shortfallSat} sats` : ''),
+        );
+        for (const x of p.payouts)
+          console.log(
+            `    ${x.pseudonym.padEnd(16)} ${String(x.amountSat).padStart(7)} sats  ${x.status}`,
+          );
+      }
       deps.publisher?.close?.();
+      break;
+    }
+
+    case 'payouts': {
+      const ctx = services.publisher ? services.money : { ...services.money, publisher: null };
+      const r = await runPayoutJobs(ctx);
+      const p = r.payouts;
+      console.log(
+        `wallet: ${services.wallet.kind}${services.wallet.simulated ? ' (Simulé)' : ''}  ` +
+          `balance: ${await services.wallet.getBalanceSat()} sats`,
+      );
+      console.log(`policies expired: ${r.expiredPolicies}`);
+      console.log(
+        `deposits checked ${r.deposits.checked}, paid ${r.deposits.paid}, expired ${r.deposits.expired}`,
+      );
+      console.log(`runs planned: ${r.planned.length ? r.planned.join(', ') : 'none'}`);
+      console.log(
+        `payouts: ${p.processed} due — paid ${p.paid}, retry ${p.retry}, waiting ${p.waiting}, failed ${p.failed}, errors ${p.errors}`,
+      );
+      console.log(`events published: ${r.published}`);
+      if (p.failed || p.errors) process.exitCode = 1;
       break;
     }
 

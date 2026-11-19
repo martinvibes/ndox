@@ -307,6 +307,29 @@ describe('payout engine — plan', () => {
     });
   });
 
+  it('a real wallet never pays demo policies (e.g. a database switched from fake to live)', async () => {
+    const s = setup();
+    await fund(s, 100_000);
+    await coverCrew(s, 1); // demo
+    const real = await coverCrew(s, 2, 'kayar', false);
+    const eventId = await attestDay(s);
+    const realWallet: Wallet = {
+      kind: 'nwc',
+      simulated: false,
+      makeInvoice: (a, m, e) => s.pool.makeInvoice(a, m, e),
+      payInvoice: (i) => s.pool.payInvoice(i),
+      lookupInvoice: (h) => s.pool.lookupInvoice(h),
+      getBalanceSat: () => s.pool.getBalanceSat(),
+    };
+    const run = await planPayoutRun({ ...s.ctx, wallet: realWallet }, eventId);
+    expect(run).toMatchObject({ status: 'planned', policies: 1, wallet: 'nwc' });
+    expect(payoutRows(s.db, eventId).map((p) => [p.policyId, p.wallet])).toEqual([
+      [real.policyId, 'nwc'],
+    ]);
+    // and the fake-mode engine leaves a real-wallet payout alone
+    expect(await processPayout(s.ctx, payoutRows(s.db, eventId)[0]!.id)).toBe('skipped');
+  });
+
   it('refuses an attestation from the wrong oracle key', async () => {
     const s = setup();
     await fund(s, 100_000);

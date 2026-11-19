@@ -125,7 +125,8 @@ export function eligiblePolicies(
   db: DbLike,
   site: string,
   at: Date,
-  opts: { demoOnly?: boolean } = {},
+  /** true: demo policies only (replays) · false: real ones only (real wallet) · unset: all. */
+  opts: { demo?: boolean } = {},
 ): PolicyRow[] {
   const t = isoSeconds(at);
   return db
@@ -139,7 +140,7 @@ export function eligiblePolicies(
         lte(policies.activeFrom, t),
         gt(policies.activeUntil, t),
         eq(crews.active, true),
-        opts.demoOnly ? eq(policies.demo, true) : undefined,
+        opts.demo === undefined ? undefined : eq(policies.demo, opts.demo),
       ),
     )
     .orderBy(policies.createdAt, policies.id)

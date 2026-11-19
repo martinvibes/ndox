@@ -21,7 +21,7 @@ const services = createServices(config, db, log);
 const app = await buildApp({ webDir: config.webDir, logger, services });
 
 let scheduler: Scheduler | undefined;
-if (config.scheduler) scheduler = startScheduler(services.live, log);
+if (config.scheduler) scheduler = startScheduler(services, log);
 log.info('ndox starting', {
   walletMode: config.walletMode,
   network: config.network,
