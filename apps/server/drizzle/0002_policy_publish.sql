@@ -1,0 +1,1 @@
+ALTER TABLE `policies` ADD `publish_result` text;

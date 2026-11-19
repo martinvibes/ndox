@@ -77,6 +77,7 @@ export const policies = sqliteTable(
     demo: bool('demo').notNull().default(true),
     eventJson: text('event_json'),
     publishedAt: text('published_at'),
+    publishResult: text('publish_result', { mode: 'json' }),
     createdAt: createdAt(),
   },
   (t) => [index('policies_site_status_idx').on(t.site, t.status)],
