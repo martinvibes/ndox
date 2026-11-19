@@ -1,0 +1,8 @@
+{
+  "source": "https://mempool.space/api/v1/prices",
+  "note": "Snapshot used only when mempool.space is unreachable and no price was ever fetched; always shown as stale.",
+  "fetchedAt": "2026-11-19T13:50:40Z",
+  "time": 1795095908,
+  "EUR": 57941,
+  "USD": 63666
+}
