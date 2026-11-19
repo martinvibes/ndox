@@ -13,6 +13,7 @@
     "cli": "tsx --env-file-if-exists=../../.env src/cli.ts"
   },
   "dependencies": {
+    "@fastify/compress": "^9.3.0",
     "@fastify/static": "^10.1.11",
     "@getalby/lightning-tools": "^10.0.0",
     "@getalby/sdk": "^9.0.0",
