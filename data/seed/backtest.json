@@ -1,0 +1,2163 @@
+{
+  "generatedAt": "2026-11-19T13:15:11Z",
+  "params": {
+    "historyModel": "era5_ocean",
+    "liveModels": [
+      "ecmwf_wam",
+      "ncep_gfswave025"
+    ],
+    "variable": "wave_height",
+    "windowUtc": [
+      6,
+      18
+    ],
+    "minValidHours": 10,
+    "payoutFcfa": 2000,
+    "loading": 0.25,
+    "years": [
+      1995,
+      2025
+    ]
+  },
+  "caveat": "Le backtest utilise un seul modèle de réanalyse (ERA5-Ocean, maille 0,5°) alors que le déclencheur en direct exige que deux modèles de prévision (ECMWF WAM et NCEP GFS-Wave) soient d’accord. La houle seule (swell) n’est disponible que via GFS-Wave depuis 2024.",
+  "sites": [
+    {
+      "site": "kayar",
+      "name": "Kayar",
+      "thresholdM": 2.5,
+      "seasonMonths": [
+        12,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "era5Grid": {
+        "lat": 15,
+        "lon": -17.5
+      },
+      "seasons": [
+        {
+          "season": "1995-96",
+          "dangerDays": 26,
+          "missingDays": 0
+        },
+        {
+          "season": "1996-97",
+          "dangerDays": 9,
+          "missingDays": 0
+        },
+        {
+          "season": "1997-98",
+          "dangerDays": 7,
+          "missingDays": 0
+        },
+        {
+          "season": "1998-99",
+          "dangerDays": 15,
+          "missingDays": 0
+        },
+        {
+          "season": "1999-00",
+          "dangerDays": 3,
+          "missingDays": 0
+        },
+        {
+          "season": "2000-01",
+          "dangerDays": 23,
+          "missingDays": 0
+        },
+        {
+          "season": "2001-02",
+          "dangerDays": 17,
+          "missingDays": 0
+        },
+        {
+          "season": "2002-03",
+          "dangerDays": 13,
+          "missingDays": 0
+        },
+        {
+          "season": "2003-04",
+          "dangerDays": 6,
+          "missingDays": 0
+        },
+        {
+          "season": "2004-05",
+          "dangerDays": 7,
+          "missingDays": 0
+        },
+        {
+          "season": "2005-06",
+          "dangerDays": 14,
+          "missingDays": 0
+        },
+        {
+          "season": "2006-07",
+          "dangerDays": 8,
+          "missingDays": 0
+        },
+        {
+          "season": "2007-08",
+          "dangerDays": 8,
+          "missingDays": 0
+        },
+        {
+          "season": "2008-09",
+          "dangerDays": 15,
+          "missingDays": 0
+        },
+        {
+          "season": "2009-10",
+          "dangerDays": 17,
+          "missingDays": 0
+        },
+        {
+          "season": "2010-11",
+          "dangerDays": 10,
+          "missingDays": 0
+        },
+        {
+          "season": "2011-12",
+          "dangerDays": 5,
+          "missingDays": 0
+        },
+        {
+          "season": "2012-13",
+          "dangerDays": 17,
+          "missingDays": 0
+        },
+        {
+          "season": "2013-14",
+          "dangerDays": 19,
+          "missingDays": 0
+        },
+        {
+          "season": "2014-15",
+          "dangerDays": 11,
+          "missingDays": 0
+        },
+        {
+          "season": "2015-16",
+          "dangerDays": 10,
+          "missingDays": 0
+        },
+        {
+          "season": "2016-17",
+          "dangerDays": 10,
+          "missingDays": 0
+        },
+        {
+          "season": "2017-18",
+          "dangerDays": 19,
+          "missingDays": 0
+        },
+        {
+          "season": "2018-19",
+          "dangerDays": 11,
+          "missingDays": 0
+        },
+        {
+          "season": "2019-20",
+          "dangerDays": 7,
+          "missingDays": 0
+        },
+        {
+          "season": "2020-21",
+          "dangerDays": 15,
+          "missingDays": 0
+        },
+        {
+          "season": "2021-22",
+          "dangerDays": 15,
+          "missingDays": 0
+        },
+        {
+          "season": "2022-23",
+          "dangerDays": 6,
+          "missingDays": 0
+        },
+        {
+          "season": "2023-24",
+          "dangerDays": 8,
+          "missingDays": 0
+        },
+        {
+          "season": "2024-25",
+          "dangerDays": 15,
+          "missingDays": 0
+        }
+      ],
+      "years": [
+        {
+          "year": 1995,
+          "dangerDays": 8
+        },
+        {
+          "year": 1996,
+          "dangerDays": 29
+        },
+        {
+          "year": 1997,
+          "dangerDays": 12
+        },
+        {
+          "year": 1998,
+          "dangerDays": 8
+        },
+        {
+          "year": 1999,
+          "dangerDays": 14
+        },
+        {
+          "year": 2000,
+          "dangerDays": 13
+        },
+        {
+          "year": 2001,
+          "dangerDays": 18
+        },
+        {
+          "year": 2002,
+          "dangerDays": 21
+        },
+        {
+          "year": 2003,
+          "dangerDays": 15
+        },
+        {
+          "year": 2004,
+          "dangerDays": 7
+        },
+        {
+          "year": 2005,
+          "dangerDays": 8
+        },
+        {
+          "year": 2006,
+          "dangerDays": 15
+        },
+        {
+          "year": 2007,
+          "dangerDays": 10
+        },
+        {
+          "year": 2008,
+          "dangerDays": 7
+        },
+        {
+          "year": 2009,
+          "dangerDays": 20
+        },
+        {
+          "year": 2010,
+          "dangerDays": 15
+        },
+        {
+          "year": 2011,
+          "dangerDays": 15
+        },
+        {
+          "year": 2012,
+          "dangerDays": 9
+        },
+        {
+          "year": 2013,
+          "dangerDays": 19
+        },
+        {
+          "year": 2014,
+          "dangerDays": 21
+        },
+        {
+          "year": 2015,
+          "dangerDays": 15
+        },
+        {
+          "year": 2016,
+          "dangerDays": 13
+        },
+        {
+          "year": 2017,
+          "dangerDays": 7
+        },
+        {
+          "year": 2018,
+          "dangerDays": 24
+        },
+        {
+          "year": 2019,
+          "dangerDays": 16
+        },
+        {
+          "year": 2020,
+          "dangerDays": 7
+        },
+        {
+          "year": 2021,
+          "dangerDays": 14
+        },
+        {
+          "year": 2022,
+          "dangerDays": 14
+        },
+        {
+          "year": 2023,
+          "dangerDays": 9
+        },
+        {
+          "year": 2024,
+          "dangerDays": 8
+        },
+        {
+          "year": 2025,
+          "dangerDays": 18
+        }
+      ],
+      "summary": {
+        "n": 30,
+        "mean": 12.2,
+        "p90": 19,
+        "worst": 26,
+        "best": 3
+      },
+      "weeksInSeason": 30.32,
+      "premiumWeeklyFcfa": 1006,
+      "reservePerPolicyFcfa": 52000,
+      "worstWeekDangerDays": 7,
+      "sensitivity": [
+        {
+          "thresholdM": 2,
+          "meanDangerDays": 51.73
+        },
+        {
+          "thresholdM": 2.5,
+          "meanDangerDays": 12.2
+        },
+        {
+          "thresholdM": 3,
+          "meanDangerDays": 2.3
+        }
+      ],
+      "liveRule": {
+        "from": "2025-11-01",
+        "to": "2026-11-18",
+        "days": 383,
+        "dangerDates": [
+          "2025-12-14",
+          "2025-12-15",
+          "2026-02-27",
+          "2026-04-09"
+        ],
+        "unavailableDays": 15
+      },
+      "swell": {
+        "model": "ncep_gfswave025",
+        "from": "2024-06-01",
+        "to": "2026-11-18",
+        "waveHeightDays": 7,
+        "swellWaveHeightDays": 1
+      }
+    },
+    {
+      "site": "saint-louis",
+      "name": "Saint-Louis (Guet Ndar)",
+      "thresholdM": 2.5,
+      "seasonMonths": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "era5Grid": {
+        "lat": 16,
+        "lon": -17
+      },
+      "seasons": [
+        {
+          "season": "1995",
+          "dangerDays": 9,
+          "missingDays": 0
+        },
+        {
+          "season": "1996",
+          "dangerDays": 32,
+          "missingDays": 0
+        },
+        {
+          "season": "1997",
+          "dangerDays": 18,
+          "missingDays": 0
+        },
+        {
+          "season": "1998",
+          "dangerDays": 9,
+          "missingDays": 0
+        },
+        {
+          "season": "1999",
+          "dangerDays": 13,
+          "missingDays": 0
+        },
+        {
+          "season": "2000",
+          "dangerDays": 17,
+          "missingDays": 0
+        },
+        {
+          "season": "2001",
+          "dangerDays": 20,
+          "missingDays": 0
+        },
+        {
+          "season": "2002",
+          "dangerDays": 23,
+          "missingDays": 0
+        },
+        {
+          "season": "2003",
+          "dangerDays": 16,
+          "missingDays": 0
+        },
+        {
+          "season": "2004",
+          "dangerDays": 9,
+          "missingDays": 0
+        },
+        {
+          "season": "2005",
+          "dangerDays": 8,
+          "missingDays": 0
+        },
+        {
+          "season": "2006",
+          "dangerDays": 14,
+          "missingDays": 0
+        },
+        {
+          "season": "2007",
+          "dangerDays": 10,
+          "missingDays": 0
+        },
+        {
+          "season": "2008",
+          "dangerDays": 3,
+          "missingDays": 0
+        },
+        {
+          "season": "2009",
+          "dangerDays": 20,
+          "missingDays": 0
+        },
+        {
+          "season": "2010",
+          "dangerDays": 15,
+          "missingDays": 0
+        },
+        {
+          "season": "2011",
+          "dangerDays": 15,
+          "missingDays": 0
+        },
+        {
+          "season": "2012",
+          "dangerDays": 9,
+          "missingDays": 0
+        },
+        {
+          "season": "2013",
+          "dangerDays": 21,
+          "missingDays": 0
+        },
+        {
+          "season": "2014",
+          "dangerDays": 16,
+          "missingDays": 0
+        },
+        {
+          "season": "2015",
+          "dangerDays": 13,
+          "missingDays": 0
+        },
+        {
+          "season": "2016",
+          "dangerDays": 14,
+          "missingDays": 0
+        },
+        {
+          "season": "2017",
+          "dangerDays": 8,
+          "missingDays": 0
+        },
+        {
+          "season": "2018",
+          "dangerDays": 23,
+          "missingDays": 0
+        },
+        {
+          "season": "2019",
+          "dangerDays": 15,
+          "missingDays": 0
+        },
+        {
+          "season": "2020",
+          "dangerDays": 7,
+          "missingDays": 0
+        },
+        {
+          "season": "2021",
+          "dangerDays": 15,
+          "missingDays": 0
+        },
+        {
+          "season": "2022",
+          "dangerDays": 16,
+          "missingDays": 0
+        },
+        {
+          "season": "2023",
+          "dangerDays": 8,
+          "missingDays": 0
+        },
+        {
+          "season": "2024",
+          "dangerDays": 9,
+          "missingDays": 0
+        },
+        {
+          "season": "2025",
+          "dangerDays": 18,
+          "missingDays": 0
+        }
+      ],
+      "years": [
+        {
+          "year": 1995,
+          "dangerDays": 9
+        },
+        {
+          "year": 1996,
+          "dangerDays": 32
+        },
+        {
+          "year": 1997,
+          "dangerDays": 18
+        },
+        {
+          "year": 1998,
+          "dangerDays": 9
+        },
+        {
+          "year": 1999,
+          "dangerDays": 13
+        },
+        {
+          "year": 2000,
+          "dangerDays": 17
+        },
+        {
+          "year": 2001,
+          "dangerDays": 20
+        },
+        {
+          "year": 2002,
+          "dangerDays": 23
+        },
+        {
+          "year": 2003,
+          "dangerDays": 16
+        },
+        {
+          "year": 2004,
+          "dangerDays": 9
+        },
+        {
+          "year": 2005,
+          "dangerDays": 8
+        },
+        {
+          "year": 2006,
+          "dangerDays": 14
+        },
+        {
+          "year": 2007,
+          "dangerDays": 10
+        },
+        {
+          "year": 2008,
+          "dangerDays": 3
+        },
+        {
+          "year": 2009,
+          "dangerDays": 20
+        },
+        {
+          "year": 2010,
+          "dangerDays": 15
+        },
+        {
+          "year": 2011,
+          "dangerDays": 15
+        },
+        {
+          "year": 2012,
+          "dangerDays": 9
+        },
+        {
+          "year": 2013,
+          "dangerDays": 21
+        },
+        {
+          "year": 2014,
+          "dangerDays": 16
+        },
+        {
+          "year": 2015,
+          "dangerDays": 13
+        },
+        {
+          "year": 2016,
+          "dangerDays": 14
+        },
+        {
+          "year": 2017,
+          "dangerDays": 8
+        },
+        {
+          "year": 2018,
+          "dangerDays": 23
+        },
+        {
+          "year": 2019,
+          "dangerDays": 15
+        },
+        {
+          "year": 2020,
+          "dangerDays": 7
+        },
+        {
+          "year": 2021,
+          "dangerDays": 15
+        },
+        {
+          "year": 2022,
+          "dangerDays": 16
+        },
+        {
+          "year": 2023,
+          "dangerDays": 8
+        },
+        {
+          "year": 2024,
+          "dangerDays": 9
+        },
+        {
+          "year": 2025,
+          "dangerDays": 18
+        }
+      ],
+      "summary": {
+        "n": 31,
+        "mean": 14.29,
+        "p90": 21,
+        "worst": 32,
+        "best": 3
+      },
+      "weeksInSeason": 52.18,
+      "premiumWeeklyFcfa": 685,
+      "reservePerPolicyFcfa": 64000,
+      "worstWeekDangerDays": 7,
+      "sensitivity": [
+        {
+          "thresholdM": 2,
+          "meanDangerDays": 59.13
+        },
+        {
+          "thresholdM": 2.5,
+          "meanDangerDays": 14.29
+        },
+        {
+          "thresholdM": 3,
+          "meanDangerDays": 3.13
+        }
+      ],
+      "liveRule": {
+        "from": "2025-11-01",
+        "to": "2026-11-18",
+        "days": 383,
+        "dangerDates": [
+          "2026-02-27",
+          "2026-04-09"
+        ],
+        "unavailableDays": 15
+      },
+      "swell": {
+        "model": "ncep_gfswave025",
+        "from": "2024-06-01",
+        "to": "2026-11-18",
+        "waveHeightDays": 4,
+        "swellWaveHeightDays": 0
+      }
+    },
+    {
+      "site": "joal",
+      "name": "Joal-Fadiouth",
+      "thresholdM": 2.5,
+      "seasonMonths": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "era5Grid": {
+        "lat": 14,
+        "lon": -17
+      },
+      "seasons": [
+        {
+          "season": "1995",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "1996",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "1997",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "1998",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "1999",
+          "dangerDays": 1,
+          "missingDays": 0
+        },
+        {
+          "season": "2000",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2001",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2002",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2003",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2004",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2005",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2006",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2007",
+          "dangerDays": 1,
+          "missingDays": 0
+        },
+        {
+          "season": "2008",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2009",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2010",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2011",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2012",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2013",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2014",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2015",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2016",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2017",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2018",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2019",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2020",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2021",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2022",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2023",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2024",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2025",
+          "dangerDays": 1,
+          "missingDays": 0
+        }
+      ],
+      "years": [
+        {
+          "year": 1995,
+          "dangerDays": 0
+        },
+        {
+          "year": 1996,
+          "dangerDays": 0
+        },
+        {
+          "year": 1997,
+          "dangerDays": 0
+        },
+        {
+          "year": 1998,
+          "dangerDays": 0
+        },
+        {
+          "year": 1999,
+          "dangerDays": 1
+        },
+        {
+          "year": 2000,
+          "dangerDays": 0
+        },
+        {
+          "year": 2001,
+          "dangerDays": 0
+        },
+        {
+          "year": 2002,
+          "dangerDays": 0
+        },
+        {
+          "year": 2003,
+          "dangerDays": 0
+        },
+        {
+          "year": 2004,
+          "dangerDays": 0
+        },
+        {
+          "year": 2005,
+          "dangerDays": 0
+        },
+        {
+          "year": 2006,
+          "dangerDays": 0
+        },
+        {
+          "year": 2007,
+          "dangerDays": 1
+        },
+        {
+          "year": 2008,
+          "dangerDays": 0
+        },
+        {
+          "year": 2009,
+          "dangerDays": 0
+        },
+        {
+          "year": 2010,
+          "dangerDays": 0
+        },
+        {
+          "year": 2011,
+          "dangerDays": 0
+        },
+        {
+          "year": 2012,
+          "dangerDays": 0
+        },
+        {
+          "year": 2013,
+          "dangerDays": 0
+        },
+        {
+          "year": 2014,
+          "dangerDays": 0
+        },
+        {
+          "year": 2015,
+          "dangerDays": 0
+        },
+        {
+          "year": 2016,
+          "dangerDays": 0
+        },
+        {
+          "year": 2017,
+          "dangerDays": 0
+        },
+        {
+          "year": 2018,
+          "dangerDays": 0
+        },
+        {
+          "year": 2019,
+          "dangerDays": 0
+        },
+        {
+          "year": 2020,
+          "dangerDays": 0
+        },
+        {
+          "year": 2021,
+          "dangerDays": 0
+        },
+        {
+          "year": 2022,
+          "dangerDays": 0
+        },
+        {
+          "year": 2023,
+          "dangerDays": 0
+        },
+        {
+          "year": 2024,
+          "dangerDays": 0
+        },
+        {
+          "year": 2025,
+          "dangerDays": 1
+        }
+      ],
+      "summary": {
+        "n": 31,
+        "mean": 0.1,
+        "p90": 0,
+        "worst": 1,
+        "best": 0
+      },
+      "weeksInSeason": 52.18,
+      "premiumWeeklyFcfa": 5,
+      "reservePerPolicyFcfa": 2000,
+      "worstWeekDangerDays": 1,
+      "sensitivity": [
+        {
+          "thresholdM": 2,
+          "meanDangerDays": 0.97
+        },
+        {
+          "thresholdM": 2.5,
+          "meanDangerDays": 0.1
+        },
+        {
+          "thresholdM": 3,
+          "meanDangerDays": 0
+        }
+      ],
+      "liveRule": {
+        "from": "2025-11-01",
+        "to": "2026-11-18",
+        "days": 383,
+        "dangerDates": [],
+        "unavailableDays": 15
+      },
+      "swell": {
+        "model": "ncep_gfswave025",
+        "from": "2024-06-01",
+        "to": "2026-11-18",
+        "waveHeightDays": 0,
+        "swellWaveHeightDays": 0
+      }
+    },
+    {
+      "site": "soumbedioune",
+      "name": "Soumbédioune (Dakar)",
+      "thresholdM": 2.5,
+      "seasonMonths": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "era5Grid": {
+        "lat": 14.5,
+        "lon": -17.5
+      },
+      "seasons": [
+        {
+          "season": "1995",
+          "dangerDays": 1,
+          "missingDays": 0
+        },
+        {
+          "season": "1996",
+          "dangerDays": 8,
+          "missingDays": 0
+        },
+        {
+          "season": "1997",
+          "dangerDays": 4,
+          "missingDays": 0
+        },
+        {
+          "season": "1998",
+          "dangerDays": 3,
+          "missingDays": 0
+        },
+        {
+          "season": "1999",
+          "dangerDays": 6,
+          "missingDays": 0
+        },
+        {
+          "season": "2000",
+          "dangerDays": 2,
+          "missingDays": 0
+        },
+        {
+          "season": "2001",
+          "dangerDays": 2,
+          "missingDays": 0
+        },
+        {
+          "season": "2002",
+          "dangerDays": 3,
+          "missingDays": 0
+        },
+        {
+          "season": "2003",
+          "dangerDays": 5,
+          "missingDays": 0
+        },
+        {
+          "season": "2004",
+          "dangerDays": 3,
+          "missingDays": 0
+        },
+        {
+          "season": "2005",
+          "dangerDays": 2,
+          "missingDays": 0
+        },
+        {
+          "season": "2006",
+          "dangerDays": 5,
+          "missingDays": 0
+        },
+        {
+          "season": "2007",
+          "dangerDays": 3,
+          "missingDays": 0
+        },
+        {
+          "season": "2008",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2009",
+          "dangerDays": 7,
+          "missingDays": 0
+        },
+        {
+          "season": "2010",
+          "dangerDays": 4,
+          "missingDays": 0
+        },
+        {
+          "season": "2011",
+          "dangerDays": 1,
+          "missingDays": 0
+        },
+        {
+          "season": "2012",
+          "dangerDays": 1,
+          "missingDays": 0
+        },
+        {
+          "season": "2013",
+          "dangerDays": 6,
+          "missingDays": 0
+        },
+        {
+          "season": "2014",
+          "dangerDays": 4,
+          "missingDays": 0
+        },
+        {
+          "season": "2015",
+          "dangerDays": 3,
+          "missingDays": 0
+        },
+        {
+          "season": "2016",
+          "dangerDays": 1,
+          "missingDays": 0
+        },
+        {
+          "season": "2017",
+          "dangerDays": 1,
+          "missingDays": 0
+        },
+        {
+          "season": "2018",
+          "dangerDays": 4,
+          "missingDays": 0
+        },
+        {
+          "season": "2019",
+          "dangerDays": 3,
+          "missingDays": 0
+        },
+        {
+          "season": "2020",
+          "dangerDays": 1,
+          "missingDays": 0
+        },
+        {
+          "season": "2021",
+          "dangerDays": 3,
+          "missingDays": 0
+        },
+        {
+          "season": "2022",
+          "dangerDays": 0,
+          "missingDays": 0
+        },
+        {
+          "season": "2023",
+          "dangerDays": 1,
+          "missingDays": 0
+        },
+        {
+          "season": "2024",
+          "dangerDays": 1,
+          "missingDays": 0
+        },
+        {
+          "season": "2025",
+          "dangerDays": 4,
+          "missingDays": 0
+        }
+      ],
+      "years": [
+        {
+          "year": 1995,
+          "dangerDays": 1
+        },
+        {
+          "year": 1996,
+          "dangerDays": 8
+        },
+        {
+          "year": 1997,
+          "dangerDays": 4
+        },
+        {
+          "year": 1998,
+          "dangerDays": 3
+        },
+        {
+          "year": 1999,
+          "dangerDays": 6
+        },
+        {
+          "year": 2000,
+          "dangerDays": 2
+        },
+        {
+          "year": 2001,
+          "dangerDays": 2
+        },
+        {
+          "year": 2002,
+          "dangerDays": 3
+        },
+        {
+          "year": 2003,
+          "dangerDays": 5
+        },
+        {
+          "year": 2004,
+          "dangerDays": 3
+        },
+        {
+          "year": 2005,
+          "dangerDays": 2
+        },
+        {
+          "year": 2006,
+          "dangerDays": 5
+        },
+        {
+          "year": 2007,
+          "dangerDays": 3
+        },
+        {
+          "year": 2008,
+          "dangerDays": 0
+        },
+        {
+          "year": 2009,
+          "dangerDays": 7
+        },
+        {
+          "year": 2010,
+          "dangerDays": 4
+        },
+        {
+          "year": 2011,
+          "dangerDays": 1
+        },
+        {
+          "year": 2012,
+          "dangerDays": 1
+        },
+        {
+          "year": 2013,
+          "dangerDays": 6
+        },
+        {
+          "year": 2014,
+          "dangerDays": 4
+        },
+        {
+          "year": 2015,
+          "dangerDays": 3
+        },
+        {
+          "year": 2016,
+          "dangerDays": 1
+        },
+        {
+          "year": 2017,
+          "dangerDays": 1
+        },
+        {
+          "year": 2018,
+          "dangerDays": 4
+        },
+        {
+          "year": 2019,
+          "dangerDays": 3
+        },
+        {
+          "year": 2020,
+          "dangerDays": 1
+        },
+        {
+          "year": 2021,
+          "dangerDays": 3
+        },
+        {
+          "year": 2022,
+          "dangerDays": 0
+        },
+        {
+          "year": 2023,
+          "dangerDays": 1
+        },
+        {
+          "year": 2024,
+          "dangerDays": 1
+        },
+        {
+          "year": 2025,
+          "dangerDays": 4
+        }
+      ],
+      "summary": {
+        "n": 31,
+        "mean": 2.97,
+        "p90": 6,
+        "worst": 8,
+        "best": 0
+      },
+      "weeksInSeason": 52.18,
+      "premiumWeeklyFcfa": 143,
+      "reservePerPolicyFcfa": 16000,
+      "worstWeekDangerDays": 4,
+      "sensitivity": [
+        {
+          "thresholdM": 2,
+          "meanDangerDays": 27.13
+        },
+        {
+          "thresholdM": 2.5,
+          "meanDangerDays": 2.97
+        },
+        {
+          "thresholdM": 3,
+          "meanDangerDays": 0.32
+        }
+      ],
+      "liveRule": {
+        "from": "2025-11-01",
+        "to": "2026-11-18",
+        "days": 383,
+        "dangerDates": [
+          "2026-01-29"
+        ],
+        "unavailableDays": 15
+      },
+      "swell": {
+        "model": "ncep_gfswave025",
+        "from": "2024-06-01",
+        "to": "2026-11-18",
+        "waveHeightDays": 32,
+        "swellWaveHeightDays": 6
+      }
+    }
+  ],
+  "alertCheck": {
+    "note": "Dates d’alerte ANACIM relevées dans la presse, pas une archive officielle.",
+    "rows": [
+      {
+        "date": "2025-01-22",
+        "site": "soumbedioune",
+        "zone": "Côte de Dakar",
+        "source": "Presse",
+        "url": null,
+        "added": false,
+        "era5MaxM": 2.16,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": null
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 2.54
+          }
+        ],
+        "liveOutcome": "indisponible"
+      },
+      {
+        "date": "2026-01-18",
+        "site": "kayar",
+        "zone": "Toute la côte",
+        "source": "Presse",
+        "url": null,
+        "added": false,
+        "era5MaxM": 2.22,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 2.2
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 1.9
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-01-18",
+        "site": "saint-louis",
+        "zone": "Toute la côte",
+        "source": "Presse",
+        "url": null,
+        "added": false,
+        "era5MaxM": 2.14,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 2.08
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 1.86
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-01-18",
+        "site": "joal",
+        "zone": "Toute la côte",
+        "source": "Presse",
+        "url": null,
+        "added": false,
+        "era5MaxM": 1.26,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 0.74
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 0.8
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-01-18",
+        "site": "soumbedioune",
+        "zone": "Toute la côte",
+        "source": "Presse",
+        "url": null,
+        "added": false,
+        "era5MaxM": 1.92,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 1.58
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 2.28
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-01-19",
+        "site": "kayar",
+        "zone": "Toute la côte",
+        "source": "Presse",
+        "url": null,
+        "added": false,
+        "era5MaxM": 2.24,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 2.22
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 2
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-01-19",
+        "site": "saint-louis",
+        "zone": "Toute la côte",
+        "source": "Presse",
+        "url": null,
+        "added": false,
+        "era5MaxM": 2.14,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 1.96
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 1.84
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-01-19",
+        "site": "joal",
+        "zone": "Toute la côte",
+        "source": "Presse",
+        "url": null,
+        "added": false,
+        "era5MaxM": 1.34,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 0.7
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 0.88
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-01-19",
+        "site": "soumbedioune",
+        "zone": "Toute la côte",
+        "source": "Presse",
+        "url": null,
+        "added": false,
+        "era5MaxM": 1.94,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 1.6
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 2.36
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-01-20",
+        "site": "kayar",
+        "zone": "Toute la côte",
+        "source": "Presse",
+        "url": null,
+        "added": false,
+        "era5MaxM": 2.04,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 2.1
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 1.72
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-01-20",
+        "site": "saint-louis",
+        "zone": "Toute la côte",
+        "source": "Presse",
+        "url": null,
+        "added": false,
+        "era5MaxM": 2,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 1.78
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 1.78
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-01-20",
+        "site": "joal",
+        "zone": "Toute la côte",
+        "source": "Presse",
+        "url": null,
+        "added": false,
+        "era5MaxM": 1.1,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 0.58
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 0.72
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-01-20",
+        "site": "soumbedioune",
+        "zone": "Toute la côte",
+        "source": "Presse",
+        "url": null,
+        "added": false,
+        "era5MaxM": 1.7,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 1.42
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 2.08
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-02-05",
+        "site": "saint-louis",
+        "zone": "Saint-Louis, Kayar (au large, 60 km)",
+        "source": "Presse",
+        "url": null,
+        "added": false,
+        "era5MaxM": 2.14,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 2.26
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 1.76
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-02-05",
+        "site": "kayar",
+        "zone": "Saint-Louis, Kayar (au large, 60 km)",
+        "source": "Presse",
+        "url": null,
+        "added": false,
+        "era5MaxM": 2.14,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 2.32
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 1.9
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-02-26",
+        "site": "kayar",
+        "zone": "Dakar et Grande-Côte",
+        "source": "ANACIM, BMS du 24/02/2026 (AllAfrica)",
+        "url": "https://fr.allafrica.com/stories/202602240465.html",
+        "added": true,
+        "era5MaxM": 2.74,
+        "era5Fired": true,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 2.76
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 2.26
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-02-26",
+        "site": "saint-louis",
+        "zone": "Dakar et Grande-Côte",
+        "source": "ANACIM, BMS du 24/02/2026 (AllAfrica)",
+        "url": "https://fr.allafrica.com/stories/202602240465.html",
+        "added": true,
+        "era5MaxM": 2.98,
+        "era5Fired": true,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 2.9
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 2.4
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-02-26",
+        "site": "soumbedioune",
+        "zone": "Dakar et Grande-Côte",
+        "source": "ANACIM, BMS du 24/02/2026 (AllAfrica)",
+        "url": "https://fr.allafrica.com/stories/202602240465.html",
+        "added": true,
+        "era5MaxM": 2.34,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 2.14
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 2.48
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-02-27",
+        "site": "kayar",
+        "zone": "Dakar et Grande-Côte",
+        "source": "ANACIM, BMS du 24/02/2026 (AllAfrica)",
+        "url": "https://fr.allafrica.com/stories/202602240465.html",
+        "added": true,
+        "era5MaxM": 2.74,
+        "era5Fired": true,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 2.86
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 2.62
+          }
+        ],
+        "liveOutcome": "danger"
+      },
+      {
+        "date": "2026-02-27",
+        "site": "saint-louis",
+        "zone": "Dakar et Grande-Côte",
+        "source": "ANACIM, BMS du 24/02/2026 (AllAfrica)",
+        "url": "https://fr.allafrica.com/stories/202602240465.html",
+        "added": true,
+        "era5MaxM": 2.78,
+        "era5Fired": true,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 2.72
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 2.5
+          }
+        ],
+        "liveOutcome": "danger"
+      },
+      {
+        "date": "2026-02-27",
+        "site": "soumbedioune",
+        "zone": "Dakar et Grande-Côte",
+        "source": "ANACIM, BMS du 24/02/2026 (AllAfrica)",
+        "url": "https://fr.allafrica.com/stories/202602240465.html",
+        "added": true,
+        "era5MaxM": 2.4,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 2.18
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 2.9
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-02-28",
+        "site": "kayar",
+        "zone": "Toute la côte (Petite Côte à partir du 27/02 22 h)",
+        "source": "ANACIM, BMS du 24/02/2026 (AllAfrica)",
+        "url": "https://fr.allafrica.com/stories/202602240465.html",
+        "added": true,
+        "era5MaxM": 2.24,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 2.46
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 2.34
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-02-28",
+        "site": "saint-louis",
+        "zone": "Toute la côte (Petite Côte à partir du 27/02 22 h)",
+        "source": "ANACIM, BMS du 24/02/2026 (AllAfrica)",
+        "url": "https://fr.allafrica.com/stories/202602240465.html",
+        "added": true,
+        "era5MaxM": 2.18,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 2.24
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 2.1
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-02-28",
+        "site": "joal",
+        "zone": "Toute la côte (Petite Côte à partir du 27/02 22 h)",
+        "source": "ANACIM, BMS du 24/02/2026 (AllAfrica)",
+        "url": "https://fr.allafrica.com/stories/202602240465.html",
+        "added": true,
+        "era5MaxM": 1.46,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 0.94
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 1.04
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-02-28",
+        "site": "soumbedioune",
+        "zone": "Toute la côte (Petite Côte à partir du 27/02 22 h)",
+        "source": "ANACIM, BMS du 24/02/2026 (AllAfrica)",
+        "url": "https://fr.allafrica.com/stories/202602240465.html",
+        "added": true,
+        "era5MaxM": 1.98,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 1.8
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 2.66
+          }
+        ],
+        "liveOutcome": "calme"
+      },
+      {
+        "date": "2026-05-12",
+        "site": "saint-louis",
+        "zone": "Saint-Louis",
+        "source": "Presse",
+        "url": "https://fr.allafrica.com/stories/202605120484.html",
+        "added": false,
+        "era5MaxM": 2.26,
+        "era5Fired": false,
+        "live": [
+          {
+            "id": "ecmwf_wam",
+            "windowMaxM": 2.18
+          },
+          {
+            "id": "ncep_gfswave025",
+            "windowMaxM": 2.08
+          }
+        ],
+        "liveOutcome": "calme"
+      }
+    ],
+    "era5": {
+      "matched": 4,
+      "total": 26,
+      "rate": 0.154
+    },
+    "live": {
+      "matched": 2,
+      "total": 25,
+      "rate": 0.08
+    }
+  },
+  "calibration": [
+    {
+      "thresholdM": 2,
+      "alertMatchEra5": {
+        "matched": 18,
+        "total": 26,
+        "rate": 0.692
+      },
+      "alertMatchLive": {
+        "matched": 10,
+        "total": 25,
+        "rate": 0.4
+      },
+      "sites": [
+        {
+          "site": "kayar",
+          "meanDangerDaysPerSeason": 51.73,
+          "premiumWeeklyFcfa": 4266,
+          "liveRuleDangerDays": 34
+        },
+        {
+          "site": "saint-louis",
+          "meanDangerDaysPerSeason": 59.13,
+          "premiumWeeklyFcfa": 2834,
+          "liveRuleDangerDays": 23
+        },
+        {
+          "site": "joal",
+          "meanDangerDaysPerSeason": 0.97,
+          "premiumWeeklyFcfa": 47,
+          "liveRuleDangerDays": 0
+        },
+        {
+          "site": "soumbedioune",
+          "meanDangerDaysPerSeason": 27.13,
+          "premiumWeeklyFcfa": 1300,
+          "liveRuleDangerDays": 13
+        }
+      ]
+    },
+    {
+      "thresholdM": 2.25,
+      "alertMatchEra5": {
+        "matched": 7,
+        "total": 26,
+        "rate": 0.269
+      },
+      "alertMatchLive": {
+        "matched": 5,
+        "total": 25,
+        "rate": 0.2
+      },
+      "sites": [
+        {
+          "site": "kayar",
+          "meanDangerDaysPerSeason": 24.73,
+          "premiumWeeklyFcfa": 2039,
+          "liveRuleDangerDays": 11
+        },
+        {
+          "site": "saint-louis",
+          "meanDangerDaysPerSeason": 29.1,
+          "premiumWeeklyFcfa": 1395,
+          "liveRuleDangerDays": 6
+        },
+        {
+          "site": "joal",
+          "meanDangerDaysPerSeason": 0.35,
+          "premiumWeeklyFcfa": 17,
+          "liveRuleDangerDays": 0
+        },
+        {
+          "site": "soumbedioune",
+          "meanDangerDaysPerSeason": 8.74,
+          "premiumWeeklyFcfa": 419,
+          "liveRuleDangerDays": 3
+        }
+      ]
+    },
+    {
+      "thresholdM": 2.5,
+      "alertMatchEra5": {
+        "matched": 4,
+        "total": 26,
+        "rate": 0.154
+      },
+      "alertMatchLive": {
+        "matched": 2,
+        "total": 25,
+        "rate": 0.08
+      },
+      "sites": [
+        {
+          "site": "kayar",
+          "meanDangerDaysPerSeason": 12.2,
+          "premiumWeeklyFcfa": 1006,
+          "liveRuleDangerDays": 4
+        },
+        {
+          "site": "saint-louis",
+          "meanDangerDaysPerSeason": 14.29,
+          "premiumWeeklyFcfa": 685,
+          "liveRuleDangerDays": 2
+        },
+        {
+          "site": "joal",
+          "meanDangerDaysPerSeason": 0.1,
+          "premiumWeeklyFcfa": 5,
+          "liveRuleDangerDays": 0
+        },
+        {
+          "site": "soumbedioune",
+          "meanDangerDaysPerSeason": 2.97,
+          "premiumWeeklyFcfa": 143,
+          "liveRuleDangerDays": 1
+        }
+      ]
+    },
+    {
+      "thresholdM": 2.75,
+      "alertMatchEra5": {
+        "matched": 2,
+        "total": 26,
+        "rate": 0.077
+      },
+      "alertMatchLive": {
+        "matched": 0,
+        "total": 25,
+        "rate": 0
+      },
+      "sites": [
+        {
+          "site": "kayar",
+          "meanDangerDaysPerSeason": 4.87,
+          "premiumWeeklyFcfa": 402,
+          "liveRuleDangerDays": 0
+        },
+        {
+          "site": "saint-louis",
+          "meanDangerDaysPerSeason": 6.52,
+          "premiumWeeklyFcfa": 313,
+          "liveRuleDangerDays": 0
+        },
+        {
+          "site": "joal",
+          "meanDangerDaysPerSeason": 0,
+          "premiumWeeklyFcfa": 0,
+          "liveRuleDangerDays": 0
+        },
+        {
+          "site": "soumbedioune",
+          "meanDangerDaysPerSeason": 0.97,
+          "premiumWeeklyFcfa": 47,
+          "liveRuleDangerDays": 0
+        }
+      ]
+    },
+    {
+      "thresholdM": 3,
+      "alertMatchEra5": {
+        "matched": 0,
+        "total": 26,
+        "rate": 0
+      },
+      "alertMatchLive": {
+        "matched": 0,
+        "total": 25,
+        "rate": 0
+      },
+      "sites": [
+        {
+          "site": "kayar",
+          "meanDangerDaysPerSeason": 2.3,
+          "premiumWeeklyFcfa": 190,
+          "liveRuleDangerDays": 0
+        },
+        {
+          "site": "saint-louis",
+          "meanDangerDaysPerSeason": 3.13,
+          "premiumWeeklyFcfa": 150,
+          "liveRuleDangerDays": 0
+        },
+        {
+          "site": "joal",
+          "meanDangerDaysPerSeason": 0,
+          "premiumWeeklyFcfa": 0,
+          "liveRuleDangerDays": 0
+        },
+        {
+          "site": "soumbedioune",
+          "meanDangerDaysPerSeason": 0.32,
+          "premiumWeeklyFcfa": 16,
+          "liveRuleDangerDays": 0
+        }
+      ]
+    }
+  ]
+}

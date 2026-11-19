@@ -14,6 +14,8 @@ export interface SiteConfig {
   thresholdM: number;
   /** Single-letter prefix for crew status codes. */
   codePrefix: string;
+  /** Point used for the ERA5-Ocean backtest when the 0.5° cell at (lat, lon) straddles the coast. */
+  era5?: { lat: number; lon: number };
 }
 
 const ALL_YEAR = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
@@ -39,6 +41,8 @@ export const SITES: readonly SiteConfig[] = [
     seasonMonths: ALL_YEAR,
     thresholdM: 2.5,
     codePrefix: 'S',
+    // ERA5's 0.5° cell for (16.02, -16.70) is centred on the coast (16.0, -16.5) and damped.
+    era5: { lat: 16.02, lon: -17.0 },
   },
   {
     id: 'joal',

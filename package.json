@@ -10,16 +10,20 @@
     "node": ">=20.11"
   },
   "scripts": {
-    "typecheck": "pnpm -r --parallel typecheck",
+    "typecheck": "pnpm -r --parallel typecheck && tsc -p tsconfig.scripts.json",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build": "pnpm -r build"
+    "build": "pnpm -r build",
+    "data:fetch": "tsx scripts/data-fetch.ts",
+    "backtest": "tsx scripts/backtest.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@ndox/oracle": "workspace:*",
+    "@ndox/shared": "workspace:*",
     "@types/node": "^22.20.5",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
