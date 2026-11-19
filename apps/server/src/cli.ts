@@ -237,6 +237,10 @@ try {
       console.log(
         `deposits checked ${r.deposits.checked}, paid ${r.deposits.paid}, expired ${r.deposits.expired}`,
       );
+      if (r.zaps)
+        console.log(
+          `zaps: ${r.zaps.seen} receipt(s) seen, ${r.zaps.recorded} recorded, ${r.zaps.rejected} ignored, ${r.zaps.deferred} deferred`,
+        );
       console.log(`runs planned: ${r.planned.length ? r.planned.join(', ') : 'none'}`);
       console.log(
         `payouts: ${p.processed} due — paid ${p.paid}, retry ${p.retry}, waiting ${p.waiting}, failed ${p.failed}, errors ${p.errors}`,

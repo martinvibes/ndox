@@ -76,8 +76,10 @@ export async function payReplay(
       error: errorMessage(err),
     });
   }
+  // a replay never ingests zaps or touches the pool's profile
+  const { zaps: _zaps, profile: _profile, ...base } = live;
   const ctx: PayoutCtx = {
-    ...live,
+    ...base,
     clock,
     wallet: new FakeWallet({
       db: live.db,

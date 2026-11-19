@@ -12,6 +12,7 @@ import type { OracleCtx } from './oracle/jobs.js';
 import type { ReplayDeps } from './oracle/replay.js';
 import type { PayoutCtx } from './payouts/engine.js';
 import type { ReplayPayoutOptions } from './payouts/replay.js';
+import { RelayZapSource, ZapWatcher, type ZapSource } from './pool/zaps.js';
 import { Pricing } from './pool/pricing.js';
 import { getPolicySettings, policyDefaults, type PolicySettings } from './pool/settings.js';
 import { FakeLnAddressResolver, FakeWallet } from './wallet/fake.js';
@@ -54,6 +55,8 @@ export interface ServiceOverrides {
   wallet?: Wallet;
   resolver?: LnAddressResolver;
   priceFetch?: typeof fetch;
+  zapSource?: ZapSource;
+  zapperPubkey?: () => Promise<string>;
 }
 
 export function createServices(
@@ -112,6 +115,15 @@ export function createServices(
   const defaults = policyDefaults(config);
   const settings = () => getPolicySettings(db, defaults);
   const piiKey = deriveKey(config.secrets.pii, 'pii');
+  // zaps count only when a real wallet can confirm them (it serves POOL_LIGHTNING_ADDRESS)
+  const zaps =
+    config.poolLightningAddress && !wallet.simulated
+      ? new ZapWatcher({
+          source: o.zapSource ?? new RelayZapSource(config.relays),
+          address: config.poolLightningAddress,
+          ...(o.zapperPubkey ? { zapperPubkey: o.zapperPubkey } : {}),
+        })
+      : null;
   const money: PayoutCtx = {
     db,
     wallet,
@@ -126,6 +138,8 @@ export function createServices(
     piiKey,
     resolver,
     oraclePubkey: getPublicKey(config.secrets.oracle),
+    zaps,
+    profile: { lud16: config.poolLightningAddress, website: config.publicBaseUrl },
   };
 
   return {
@@ -147,6 +161,7 @@ export function createServices(
     settings,
     close() {
       publisher?.close?.();
+      zaps?.close();
       wallet.close?.();
       db.$client.close();
     },

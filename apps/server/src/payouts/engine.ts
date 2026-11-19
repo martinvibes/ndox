@@ -36,6 +36,7 @@ import {
   type DbLike,
 } from '../pool/policies.js';
 import { preimageMatches } from '../wallet/nwc.js';
+import { publishPoolProfile, type ZapResult, type ZapWatcher } from '../pool/zaps.js';
 import type { LnAddressResolver } from '../wallet/types.js';
 
 export const MAX_ATTEMPTS = 5;
@@ -56,6 +57,10 @@ export interface PayoutCtx extends MoneyCtx {
    * real time), from a simulated wallet, and never publishes.
    */
   replay?: { runId: string; coverAt: Date };
+  /** Live only: zap ingestion (real wallet + POOL_LIGHTNING_ADDRESS). */
+  zaps?: ZapWatcher | null;
+  /** Live only: the pool's Nostr profile (kind 0), published when it changes. */
+  profile?: { lud16: string | undefined; website: string };
 }
 
 export type PayoutRunRow = typeof payoutRuns.$inferSelect;
@@ -666,6 +671,8 @@ export async function publishPayoutEvents(ctx: PayoutCtx): Promise<number> {
 export interface PayoutJobsResult {
   expiredPolicies: number;
   deposits: { checked: number; paid: number; expired: number };
+  /** null: zap ingestion off or not due this minute. */
+  zaps: ZapResult | null;
   planned: string[];
   payouts: ProcessResult;
   published: number;
@@ -677,6 +684,12 @@ export async function runPayoutJobs(ctx: PayoutCtx): Promise<PayoutJobsResult> {
   const now = ctx.clock();
   const expiredPolicies = expirePolicies(ctx.db, now);
   const deposits = await pollDeposits(ctx);
+  const zaps = ctx.zaps
+    ? await ctx.zaps.run(ctx).catch((err: unknown) => {
+        ctx.log.warn('zap ingestion failed', { error: errorMessage(err) });
+        return null;
+      })
+    : null;
 
   const since = isoSeconds(new Date(now.getTime() - PLAN_LOOKBACK_DAYS * 86_400_000));
   const unplanned = ctx.db
@@ -704,5 +717,9 @@ export async function runPayoutJobs(ctx: PayoutCtx): Promise<PayoutJobsResult> {
 
   const payoutsResult = await processDuePayouts(ctx);
   const published = (await publishPendingPolicies(ctx)) + (await publishPayoutEvents(ctx));
-  return { expiredPolicies, deposits, planned, payouts: payoutsResult, published };
+  if (ctx.profile)
+    await publishPoolProfile(ctx, ctx.profile).catch((err: unknown) =>
+      ctx.log.warn('pool profile failed', { error: errorMessage(err) }),
+    );
+  return { expiredPolicies, deposits, zaps, planned, payouts: payoutsResult, published };
 }

@@ -52,6 +52,11 @@ const EnvSchema = z.object({
   WAITING_HOURS: z.coerce.number().int().min(0).default(72),
   PREMIUM_LOADING: z.coerce.number().min(0).max(5).default(0.25),
   ADMIN_PASSWORD_HASH: z.string().min(1).optional(),
+  POOL_LIGHTNING_ADDRESS: z
+    .string()
+    .toLowerCase()
+    .regex(/^[a-z0-9._+-]{1,64}@([a-z0-9-]{1,63}\.)+[a-z]{2,63}$/, 'must be a Lightning address')
+    .optional(),
   ANTHROPIC_API_KEY: z.string().min(1).optional(),
   ANTHROPIC_MODEL: z.string().min(1).default('claude-haiku-5-5'),
   AT_USERNAME: z.string().min(1).default('sandbox'),
@@ -101,6 +106,8 @@ export interface Config {
   waitingHours: number;
   premiumLoading: number;
   adminPasswordHash: string | undefined;
+  /** lud16 of the pool's Nostr profile (zaps); must be served by the pool's NWC wallet. */
+  poolLightningAddress: string | undefined;
   anthropic: { apiKey: string | undefined; model: string };
   africasTalking: { username: string; apiKey: string | undefined };
   healthcheckUrl: string | undefined;
@@ -190,6 +197,7 @@ export function loadConfig(
     waitingHours: e.WAITING_HOURS,
     premiumLoading: e.PREMIUM_LOADING,
     adminPasswordHash: e.ADMIN_PASSWORD_HASH,
+    poolLightningAddress: e.POOL_LIGHTNING_ADDRESS,
     anthropic: { apiKey: e.ANTHROPIC_API_KEY, model: e.ANTHROPIC_MODEL },
     africasTalking: { username: e.AT_USERNAME, apiKey: e.AT_API_KEY },
     healthcheckUrl: e.HEALTHCHECK_URL,
