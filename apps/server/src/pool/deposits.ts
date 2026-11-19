@@ -181,7 +181,8 @@ export async function refreshDeposit(
   if (!d || d.status !== 'pending') return d;
   const look = await ctx.wallet.lookupInvoice(paymentHash);
   const now = ctx.clock();
-  if (look.state === 'settled') {
+  // an invoice we issued can only be paid to us; a wallet saying otherwise is not trusted
+  if (look.state === 'settled' && look.direction !== 'outgoing') {
     if (settle(ctx, d, now)) {
       ctx.log.info('deposit paid', { deposit: d.id, kind: d.kind, sat: d.amountSat });
       await publishPendingPolicies(ctx).catch((err: unknown) =>

@@ -85,6 +85,22 @@ describe('NwcWallet (NIP-47 via @getalby/sdk, millisats on the wire)', () => {
     expect(await w.lookupInvoice(paymentHash)).toEqual({ paid: true, state: 'settled', preimage });
     expect(client.calls.at(-1)).toEqual(['lookupInvoice', { payment_hash: paymentHash }]);
 
+    client.lookup = async () => ({
+      type: 'incoming',
+      amount: 5_262_999,
+      state: 'settled',
+      preimage,
+    });
+    expect(await w.lookupInvoice(paymentHash)).toEqual({
+      paid: true,
+      state: 'settled',
+      preimage,
+      direction: 'incoming',
+      amountSat: 5262,
+    });
+    client.lookup = async () => ({ type: 'sideways', amount: -1, state: 'failed' });
+    expect(await w.lookupInvoice(paymentHash)).toEqual({ paid: false, state: 'failed' });
+
     client.lookup = async () => ({ state: 'pending', preimage: '' });
     expect(await w.lookupInvoice(paymentHash)).toEqual({ paid: false, state: 'pending' });
     client.lookup = async () => ({ state: 'accepted' });

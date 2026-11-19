@@ -32,7 +32,12 @@ describe('FakeWallet', () => {
       description: 'Prime Ndox',
       expiry: 600,
     });
-    expect(await a.pool.lookupInvoice(inv.paymentHash)).toEqual({ paid: false, state: 'pending' });
+    expect(await a.pool.lookupInvoice(inv.paymentHash)).toEqual({
+      paid: false,
+      state: 'pending',
+      direction: 'incoming',
+      amountSat: 5262,
+    });
     expect(a.pool.simulated).toBe(true);
   });
 
@@ -43,7 +48,12 @@ describe('FakeWallet', () => {
     expect(pool.simulatePayment(inv.paymentHash)).toBe(true);
     expect(pool.simulatePayment(inv.paymentHash)).toBe(false);
     const l = await pool.lookupInvoice(inv.paymentHash);
-    expect(l).toMatchObject({ paid: true, state: 'settled' });
+    expect(l).toMatchObject({
+      paid: true,
+      state: 'settled',
+      direction: 'incoming',
+      amountSat: 10_000,
+    });
     expect(hashOf(l.preimage!)).toBe(inv.paymentHash);
     expect(await pool.getBalanceSat()).toBe(10_000);
   });
@@ -58,10 +68,13 @@ describe('FakeWallet', () => {
     expect(hashOf(paid.preimage)).toBe(req.paymentHash);
     expect(paid.feeSat).toBe(0);
     expect(await pool.getBalanceSat()).toBe(20_000 - 5262);
-    expect(await pool.lookupInvoice(req.paymentHash)).toMatchObject({
+    // a lookup also finds payments we made: they are marked outgoing
+    expect(await pool.lookupInvoice(req.paymentHash)).toEqual({
       paid: true,
       state: 'settled',
       preimage: paid.preimage,
+      direction: 'outgoing',
+      amountSat: 5262,
     });
   });
 
@@ -90,7 +103,12 @@ describe('FakeWallet', () => {
     const { pool, t } = setup();
     const inv = await pool.makeInvoice(100, 'x', 60);
     t.set('2026-11-19T12:01:00Z');
-    expect(await pool.lookupInvoice(inv.paymentHash)).toEqual({ paid: false, state: 'failed' });
+    expect(await pool.lookupInvoice(inv.paymentHash)).toEqual({
+      paid: false,
+      state: 'failed',
+      direction: 'incoming',
+      amountSat: 100,
+    });
     expect(pool.simulatePayment(inv.paymentHash)).toBe(false);
   });
 

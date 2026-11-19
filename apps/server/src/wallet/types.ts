@@ -16,6 +16,13 @@ export interface InvoiceLookup {
   paid: boolean;
   state: LookupState;
   preimage?: string;
+  /**
+   * Which way the money moved, when the wallet says (NIP-47 `type`). A lookup by payment hash
+   * also finds payments we made: never count an outgoing payment as money received.
+   */
+  direction?: 'incoming' | 'outgoing';
+  /** Invoice amount as the wallet recorded it. */
+  amountSat?: number;
 }
 
 export interface CreatedInvoice {

@@ -29,6 +29,9 @@ export interface NwcClientLike {
   }): Promise<{ invoice: string; payment_hash: string; expires_at?: number }>;
   payInvoice(r: { invoice: string }): Promise<{ preimage: string; fees_paid?: number }>;
   lookupInvoice(r: { payment_hash: string }): Promise<{
+    type?: string;
+    /** msat */
+    amount?: number;
     state?: string;
     preimage?: string;
     settled_at?: number;
@@ -96,20 +99,28 @@ export class NwcWallet implements Wallet {
       throw err;
     }
     const settled = tx.state === 'settled' || (tx.state === undefined && (tx.settled_at ?? 0) > 0);
+    const meta: Pick<InvoiceLookup, 'direction' | 'amountSat'> = {
+      ...(tx.type === 'incoming' || tx.type === 'outgoing'
+        ? { direction: tx.type as 'incoming' | 'outgoing' }
+        : {}),
+      ...(Number.isSafeInteger(tx.amount) && tx.amount! >= 0
+        ? { amountSat: Math.floor(tx.amount! / 1000) }
+        : {}),
+    };
     if (settled) {
       // a "settled" answer we cannot check is re-asked later rather than trusted
       return preimageMatches(tx.preimage, paymentHash)
-        ? { paid: true, state: 'settled', preimage: tx.preimage!.toLowerCase() }
-        : { paid: false, state: 'pending' };
+        ? { paid: true, state: 'settled', preimage: tx.preimage!.toLowerCase(), ...meta }
+        : { paid: false, state: 'pending', ...meta };
     }
-    if (tx.state === 'failed') return { paid: false, state: 'failed' };
+    if (tx.state === 'failed') return { paid: false, state: 'failed', ...meta };
     if (
       tx.state === undefined &&
       tx.expires_at !== undefined &&
       tx.expires_at * 1000 <= this.clock().getTime()
     )
-      return { paid: false, state: 'failed' };
-    return { paid: false, state: 'pending' };
+      return { paid: false, state: 'failed', ...meta };
+    return { paid: false, state: 'pending', ...meta };
   }
 
   async getBalanceSat(): Promise<number> {

@@ -151,13 +151,21 @@ export class FakeWallet implements Wallet {
       .where(eq(fakeInvoices.paymentHash, paymentHash))
       .get();
     if (row && row.account === this.o.account) {
-      if (row.status === 'paid') return { paid: true, state: 'settled', preimage: row.preimage };
+      const meta = { direction: 'incoming' as const, amountSat: row.amountSat };
+      if (row.status === 'paid')
+        return { paid: true, state: 'settled', preimage: row.preimage, ...meta };
       return this.o.clock() >= new Date(row.expiresAt)
-        ? { paid: false, state: 'failed' }
-        : { paid: false, state: 'pending' };
+        ? { paid: false, state: 'failed', ...meta }
+        : { paid: false, state: 'pending', ...meta };
     }
     if (row && row.paidBy === this.o.account)
-      return { paid: true, state: 'settled', preimage: row.preimage };
+      return {
+        paid: true,
+        state: 'settled',
+        preimage: row.preimage,
+        direction: 'outgoing',
+        amountSat: row.amountSat,
+      };
     return { paid: false, state: 'not_found' };
   }
 
