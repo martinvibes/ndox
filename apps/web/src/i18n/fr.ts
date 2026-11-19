@@ -292,6 +292,7 @@ const fr = {
       paidToday: (a: string) => `${a} versés aujourd’hui`,
       price: 'Prix',
       priceStale: 'prix ancien',
+      perBtc: 'par bitcoin',
       strip: 'Les 7 prochains jours',
       stripHint: 'Prévisions non signées, mêmes modèles et même règle que l’oracle.',
       stripError: 'Prévision indisponible',

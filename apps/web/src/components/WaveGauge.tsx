@@ -26,7 +26,7 @@ export function WaveGauge({ models, thresholdM }: { models: ModelValue[]; thresh
           .join('. ')}
       </figcaption>
       <div
-        className="grid grid-cols-[minmax(0,6.75rem)_1fr_auto] items-center gap-x-3 text-sm"
+        className="grid grid-cols-[minmax(0,7.5rem)_1fr_auto] items-center gap-x-3 text-sm"
         aria-hidden
       >
         <div className="flex flex-col">

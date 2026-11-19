@@ -39,6 +39,8 @@ describe('format', () => {
     expect(plain(fmtTime('2026-11-20T05:15:00Z'))).toBe('05:15 GMT');
     expect(fmtDate('2026-11-19', 'fr', 'long')).toBe('jeudi 19 novembre 2026');
     expect(fmtDate('2026-02-27T23:30:00Z', 'en')).toBe('27 Feb 2026');
+    expect(fmtDate('2026-11-19', 'fr', 'day')).toBe('jeu. 19');
+    expect(fmtDate('2026-11-19', 'en', 'day')).toBe('Thu 19');
   });
 
   it('helpers', () => {

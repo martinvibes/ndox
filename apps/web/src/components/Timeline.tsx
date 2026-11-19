@@ -211,7 +211,7 @@ export function Timeline({ result, thresholdM }: { result: ReplayResult; thresho
   ];
 
   return (
-    <div className="mt-8">
+    <div className="mt-8 max-w-3xl">
       <p className="sr-only" aria-live="polite">
         {titles.slice(0, shown).join('. ')}
       </p>
@@ -234,7 +234,7 @@ export function Timeline({ result, thresholdM }: { result: ReplayResult; thresho
                 <span
                   className={`relative z-10 mt-1.5 h-3 w-3 rounded-full ${
                     row.muted
-                      ? 'border-2 border-dashed border-muted bg-bg'
+                      ? 'border-2 border-line bg-bg'
                       : i === 2 && r.outcome === 'danger'
                         ? 'bg-danger'
                         : 'bg-ocean'

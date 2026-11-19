@@ -47,13 +47,13 @@ export function LangToggle() {
           type="button"
           lang={l}
           aria-pressed={lang === l}
-          aria-label={t.lang[l]}
           onClick={() => setLang(l)}
           className={`min-h-9 min-w-11 rounded-[6px] px-2 text-sm font-medium uppercase ${
             lang === l ? 'bg-ink text-white' : 'text-muted hover:text-ink'
           }`}
         >
           {l}
+          <span className="sr-only"> ({t.lang[l]})</span>
         </button>
       ))}
     </div>
@@ -67,7 +67,7 @@ function NavLink({ href, icon, children }: { href: string; icon: ReactNode; chil
     <Link
       href={href}
       aria-current={active ? 'page' : undefined}
-      className={`flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-btn px-3 text-sm font-medium sm:flex-none ${
+      className={`flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-btn px-1 text-xs font-medium sm:min-h-11 sm:flex-none sm:flex-row sm:gap-1.5 sm:px-3 sm:text-sm ${
         active ? 'bg-ocean-50 text-ocean' : 'text-muted hover:text-ink'
       }`}
     >

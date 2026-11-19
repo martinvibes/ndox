@@ -280,6 +280,7 @@ const en: Messages = {
       paidToday: (a) => `${a} paid today`,
       price: 'Price',
       priceStale: 'stale price',
+      perBtc: 'per bitcoin',
       strip: 'The next 7 days',
       stripHint: 'Unsigned forecasts, same models and rule as the oracle.',
       stripError: 'Forecast unavailable',

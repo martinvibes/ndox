@@ -25,7 +25,15 @@ export default function Data() {
     return (
       <>
         <PageTitle lead={t.data.intro}>{t.data.title}</PageTitle>
-        <Skeleton className="h-96" />
+        {/* One placeholder per site chart, so the page does not jump when the data lands. */}
+        <div className="grid gap-6" aria-busy="true">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i}>
+              <Skeleton className="mb-2 h-5 w-40" />
+              <Skeleton className="h-32" />
+            </div>
+          ))}
+        </div>
       </>
     );
 

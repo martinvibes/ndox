@@ -93,15 +93,15 @@ function PoolHealth() {
           value={p.price ? fmtFcfa(Math.round(p.price.xofPerBtc), lang) : '—'}
           sub={
             p.price
-              ? `${p.price.source}${p.price.stale ? `, ${t.council.overview.priceStale}` : ''}`
+              ? `${t.council.overview.perBtc}, ${p.price.source}${p.price.stale ? `, ${t.council.overview.priceStale}` : ''}`
               : undefined
           }
           tone={!p.price || p.price.stale ? 'warn' : 'ink'}
         />
         <StatTile
-          label={t.council.crews.newPremium}
+          label={t.council.crews.state.awaiting_premium}
           value={p.policies.awaitingPremium}
-          sub={t.council.crews.state.awaiting_premium}
+          tone={p.policies.awaitingPremium > 0 ? 'warn' : 'ink'}
         />
       </dl>
     </section>
@@ -205,7 +205,7 @@ function ForecastRow({ site, name }: { site: string; name: string }) {
               key={d.date}
               className={`min-w-0 rounded-btn border px-1 py-1.5 text-center ${CELL[d.outcome]}`}
             >
-              <span className="block truncate text-xs">{fmtDate(d.date, lang, 'short')}</span>
+              <span className="block truncate text-xs">{fmtDate(d.date, lang, 'day')}</span>
               <span className="tabular block text-sm font-semibold">
                 {d.decisiveM === null ? '—' : fmtM(d.decisiveM, lang)}
               </span>

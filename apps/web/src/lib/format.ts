@@ -50,13 +50,19 @@ function toDate(dateOrIso: string): Date {
   return new Date(/^\d{4}-\d{2}-\d{2}$/.test(dateOrIso) ? `${dateOrIso}T12:00:00Z` : dateOrIso);
 }
 
-/** "jeudi 19 novembre 2026" (long) or "19 nov. 2026" (short), in GMT. */
-export function fmtDate(dateOrIso: string, lang: Lang, style: 'long' | 'short' = 'short'): string {
-  const opts: Intl.DateTimeFormatOptions =
-    style === 'long'
-      ? { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }
-      : { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' };
-  return new Intl.DateTimeFormat(locale(lang), opts).format(toDate(dateOrIso));
+const DATE_STYLES: Record<'long' | 'short' | 'day', Intl.DateTimeFormatOptions> = {
+  long: { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' },
+  short: { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' },
+  day: { weekday: 'short', day: 'numeric', timeZone: 'UTC' },
+};
+
+/** "jeudi 19 novembre 2026" (long), "19 nov. 2026" (short) or "jeu. 19" (day), in GMT. */
+export function fmtDate(
+  dateOrIso: string,
+  lang: Lang,
+  style: 'long' | 'short' | 'day' = 'short',
+): string {
+  return new Intl.DateTimeFormat(locale(lang), DATE_STYLES[style]).format(toDate(dateOrIso));
 }
 
 /** "19 nov. 2026, 05:15 GMT" */

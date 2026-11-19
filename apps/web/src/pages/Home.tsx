@@ -36,9 +36,9 @@ export default function Home() {
         >
           {t.common.tagline}
         </h1>
-        <p className="mt-4 text-muted">
+        <h2 className="mt-4 text-base font-normal text-muted">
           {today.data ? t.home.seaToday(fmtDate(today.data.date, lang, 'long')) : ' '}
-        </p>
+        </h2>
         <p
           aria-live="polite"
           className={`mt-1 text-lg font-medium ${danger.length ? 'text-danger' : 'text-ink'}`}
@@ -68,7 +68,7 @@ export default function Home() {
               i === 0
                 ? gmt(schedule.announce)
                 : i === 1
-                  ? gmt(schedule.attest)
+                  ? gmt(schedule.fetch)
                   : fmtFcfa(pool.data?.payoutFcfa ?? 2000, lang);
             return (
               <li key={step.title} className="grid grid-cols-[2.5rem_1fr] gap-x-3">
