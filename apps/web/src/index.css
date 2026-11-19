@@ -1,0 +1,71 @@
+@import 'tailwindcss';
+
+/* Design tokens (docs/BRIEF.md §10.2). Light mode ships first; dark tokens are ready below. */
+@theme {
+  --color-bg: #f6f8fa;
+  --color-surface: #ffffff;
+  --color-ink: #0b1f33;
+  --color-muted: #5b6b7c;
+  --color-line: #e3e8ee;
+  --color-ocean: #0b5c8e;
+  --color-ocean-50: #e8f2f9;
+  --color-calm: #1f7a55;
+  --color-calm-bg: #e7f4ee;
+  --color-danger: #b42318;
+  --color-danger-bg: #fdecea;
+  --color-warn: #b54708;
+  --color-warn-bg: #fef3e2;
+
+  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --text-sm: 0.875rem; /* 14 */
+  --text-base: 1rem; /* 16 */
+  --text-lg: 1.25rem; /* 20 */
+  --text-title: 1.75rem; /* 28 */
+  --text-title--line-height: 2.125rem;
+  --text-display: 2.5rem; /* 40 */
+  --text-display--line-height: 2.875rem;
+
+  --radius-card: 12px;
+  --radius-btn: 8px;
+  --shadow-card: 0 1px 2px rgba(11, 31, 51, 0.06);
+}
+
+/* Dark tokens: ready, not enabled by default. */
+[data-theme='dark'] {
+  --color-bg: #0b1520;
+  --color-surface: #11202e;
+  --color-ink: #e8eef4;
+  --color-muted: #9aabbc;
+  --color-line: #22364a;
+  --color-ocean: #5fb0e6;
+  --color-ocean-50: #12324a;
+  --color-calm: #5cc79a;
+  --color-calm-bg: #10301f;
+  --color-danger: #f2877d;
+  --color-danger-bg: #3a1512;
+  --color-warn: #f0a35e;
+  --color-warn-bg: #3a2610;
+}
+
+@layer base {
+  html {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.5;
+    min-height: 100dvh;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ocean);
+    outline-offset: 2px;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}

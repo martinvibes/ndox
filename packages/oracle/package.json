@@ -1,0 +1,44 @@
+{
+  "name": "@ndox/oracle",
+  "version": "0.1.0",
+  "description": "DLC-style Schnorr oracle with pre-committed nonces, published over Nostr (draft NIP-88 kinds 88/89).",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    },
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "dlc",
+    "oracle",
+    "schnorr",
+    "bip340",
+    "nostr",
+    "nip-88"
+  ],
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "@noble/curves": "^2.4.0",
+    "@noble/hashes": "^2.4.0"
+  },
+  "devDependencies": {
+    "nostr-tools": "^2.26.1"
+  }
+}

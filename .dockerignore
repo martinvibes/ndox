@@ -1,0 +1,15 @@
+**/node_modules
+**/dist
+**/dev-dist
+**/coverage
+.git
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite-*
+data/raw
+data/backups
+.superpowers
+playwright-report
+test-results
