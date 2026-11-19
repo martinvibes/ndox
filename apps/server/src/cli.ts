@@ -26,6 +26,8 @@ import {
   type OracleCtx,
 } from './oracle/jobs.js';
 import { runReplay } from './oracle/replay.js';
+import { seedDemo } from './admin/seed.js';
+import { derivedAdminPassword, hashPassword } from './lib/password.js';
 import { runPayoutJobs } from './payouts/engine.js';
 import { payReplay } from './payouts/replay.js';
 import { tick } from './scheduler/tick.js';
@@ -44,6 +46,12 @@ Money (POOL_SECRET, WALLET_MODE):
 Demo:
   replay --site S --date D [--publish]   replay a past day with the demo key (tag ndox-replay);
          [--no-pay]                      a danger day pays the demo crews from a simulated wallet
+  seed-demo [--per-site N] [--weeks W]   enrol demo crews (Démo, *.invalid addresses) with cover
+            [--pool FCFA]                paid from a simulated wallet; FakeWallet mode: top the pool
+                                         up to FCFA (default 50 000) with a simulated levy
+Admin:
+  hash-password                          read a password on stdin, print its ADMIN_PASSWORD_HASH
+  admin-password                         WALLET_MODE=fake without a hash: print the derived password
 Tools:
   verify --event EVENT_ID                re-run the public verifier on stored events
   migrate                                apply database migrations and exit
@@ -59,6 +67,9 @@ const { positionals, values } = parseArgs({
     'dry-run': { type: 'boolean', default: false },
     publish: { type: 'boolean', default: false },
     'no-pay': { type: 'boolean', default: false },
+    'per-site': { type: 'string' },
+    weeks: { type: 'string' },
+    pool: { type: 'string' },
     help: { type: 'boolean', short: 'h', default: false },
   },
 });
@@ -74,7 +85,27 @@ function fail(msg: string): never {
   process.exit(1);
 }
 
+if (command === 'hash-password') {
+  const chunks: Buffer[] = [];
+  for await (const c of process.stdin) chunks.push(c as Buffer);
+  const password = Buffer.concat(chunks)
+    .toString('utf8')
+    .replace(/\r?\n$/, '');
+  try {
+    console.log(await hashPassword(password));
+  } catch (err) {
+    fail(errorMessage(err));
+  }
+  process.exit(0);
+}
+
 const config = loadConfig();
+if (command === 'admin-password') {
+  if (config.adminPasswordHash) fail('ADMIN_PASSWORD_HASH is set: use that password');
+  if (config.walletMode !== 'fake') fail('only available with WALLET_MODE=fake');
+  console.log(derivedAdminPassword(config.secrets.session));
+  process.exit(0);
+}
 const db = openDb(config.databasePath, {
   migrationsDir: config.migrationsDir,
   defaultThresholdM: config.defaultThresholdM,
@@ -212,6 +243,25 @@ try {
       );
       console.log(`events published: ${r.published}`);
       if (p.failed || p.errors) process.exitCode = 1;
+      break;
+    }
+
+    case 'seed-demo': {
+      const int = (v: string | undefined, name: string) => {
+        if (v === undefined) return undefined;
+        if (!/^\d+$/.test(v)) fail(`--${name} must be a whole number`);
+        return Number(v);
+      };
+      const r = await seedDemo(services, {
+        perSite: int(values['per-site'], 'per-site'),
+        weeks: int(values.weeks, 'weeks'),
+        poolFcfa: int(values.pool, 'pool') ?? 50_000,
+      });
+      console.log(
+        `demo crews (Démo, Simulé): ${r.enrolled} enrolled, ${r.covered} newly covered ` +
+          `(${r.premiumSat} sats of simulated premiums)` +
+          (r.levySat ? `; simulated levy topping up the pool: ${r.levySat} sats` : ''),
+      );
       break;
     }
 

@@ -3,6 +3,7 @@ import Fastify, { type FastifyBaseLogger, type FastifyInstance } from 'fastify';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { Logger } from 'pino';
+import { registerAdminRoutes } from './api/admin.js';
 import { registerMoneyRoutes } from './api/money.js';
 import { registerPublicRoutes } from './api/public.js';
 import type { Services } from './services.js';
@@ -32,6 +33,7 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
   if (opts.services) {
     registerPublicRoutes(app, opts.services);
     registerMoneyRoutes(app, opts.services);
+    registerAdminRoutes(app, opts.services);
   }
 
   const webDir =

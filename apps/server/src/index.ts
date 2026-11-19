@@ -12,6 +12,11 @@ const log = fromPino(logger);
 if (config.generatedSecretsFile) {
   log.warn('using generated secrets (WALLET_MODE=fake)', { file: config.generatedSecretsFile });
 }
+if (!config.adminPasswordHash) {
+  log.warn('no ADMIN_PASSWORD_HASH: the dashboard password is derived from SESSION_SECRET', {
+    show: 'ndox admin-password',
+  });
+}
 
 const db = openDb(config.databasePath, {
   migrationsDir: config.migrationsDir,

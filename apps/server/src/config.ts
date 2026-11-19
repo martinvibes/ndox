@@ -11,6 +11,7 @@ import { randomBytes } from 'node:crypto';
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { z } from 'zod';
+import { parsePasswordHash, PasswordHashError } from './lib/password.js';
 import { DEFAULT_PATHS } from './paths.js';
 
 const HEX32 = /^[0-9a-f]{64}$/;
@@ -132,6 +133,14 @@ export function loadConfig(
     throw new ConfigError(`invalid environment: ${issues}`);
   }
   const e = parsed.data;
+  if (e.ADMIN_PASSWORD_HASH) {
+    try {
+      parsePasswordHash(e.ADMIN_PASSWORD_HASH);
+    } catch (err) {
+      if (err instanceof PasswordHashError) throw new ConfigError(err.message);
+      throw err;
+    }
+  }
   const databasePath = e.DATABASE_PATH ? resolve(e.DATABASE_PATH) : paths.databasePath;
 
   const provided: Partial<Record<SecretName, string>> = {};

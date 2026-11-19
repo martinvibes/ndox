@@ -6,6 +6,8 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Config } from '../config.js';
 import type { Db } from '../db/index.js';
+
+type DbLike = Db | Parameters<Parameters<Db['transaction']>[0]>[0];
 import { settings } from '../db/schema.js';
 
 export interface PolicySettings {
@@ -44,14 +46,14 @@ export function policyDefaults(c: Config): PolicySettings {
   };
 }
 
-export function getPolicySettings(db: Db, defaults: PolicySettings): PolicySettings {
+export function getPolicySettings(db: DbLike, defaults: PolicySettings): PolicySettings {
   const row = db.select().from(settings).where(eq(settings.key, KEY)).get();
   const stored = PolicySettingsPatch.safeParse(row?.value ?? {});
   return { ...defaults, ...(stored.success ? stored.data : {}) };
 }
 
 export function updatePolicySettings(
-  db: Db,
+  db: DbLike,
   defaults: PolicySettings,
   patch: unknown,
 ): PolicySettings {
