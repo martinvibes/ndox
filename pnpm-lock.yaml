@@ -71,6 +71,9 @@ importers:
       nostr-tools:
         specifier: ^2.26.1
         version: 2.26.1(typescript@6.0.3)
+      pino:
+        specifier: ^10.4.0
+        version: 10.4.0
       ws:
         specifier: ^8.23.0
         version: 8.23.0

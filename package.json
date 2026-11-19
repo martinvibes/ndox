@@ -18,7 +18,9 @@
     "test:watch": "vitest",
     "build": "pnpm -r build",
     "data:fetch": "tsx scripts/data-fetch.ts",
-    "backtest": "tsx scripts/backtest.ts"
+    "backtest": "tsx scripts/backtest.ts",
+    "ndox": "tsx --env-file-if-exists=.env apps/server/src/cli.ts",
+    "replay": "tsx --env-file-if-exists=.env apps/server/src/cli.ts replay"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
