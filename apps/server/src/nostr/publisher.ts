@@ -16,6 +16,15 @@ export interface PublishResult {
   at: string;
 }
 
+/** Failed publishes are retried after this delay. */
+export const PUBLISH_RETRY_MS = 5 * 60_000;
+
+/** True if a stored publish result is missing or old enough to try again. */
+export function dueForRetry(result: unknown, now: Date, afterMs = PUBLISH_RETRY_MS): boolean {
+  const at = (result as Partial<PublishResult> | null)?.at;
+  return !at || now.getTime() - Date.parse(at) >= afterMs;
+}
+
 export interface Publisher {
   publish(event: NostrEvent): Promise<PublishResult>;
   close?(): void;

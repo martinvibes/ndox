@@ -103,7 +103,7 @@ export interface PayoutPlan {
   availableSat: number;
   paySat: number;
   shortfallSat: number;
-  /** paySat / dueSat in parts per million, floored (1_000_000 = paid in full). */
+  /** The factor applied, available / due, in parts per million, floored (1_000_000 = paid in full). */
   factorPpm: number;
   /** What limited the payout, if anything. */
   limitedBy: 'balance' | 'daily_cap' | null;

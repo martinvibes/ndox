@@ -254,7 +254,10 @@ export const payoutRuns = sqliteTable(
     xofPerBtc: integer('xof_per_btc'),
     priceAsOf: text('price_as_of'),
     priceStale: bool('price_stale'),
+    /** Wallet balance at planning time. */
     balanceSat: integer('balance_sat'),
+    /** Payouts already planned but not yet paid (pending/paying), deducted from the balance. */
+    outstandingSat: integer('outstanding_sat'),
     reserveFloorSat: integer('reserve_floor_sat'),
     dailyCapSat: integer('daily_cap_sat'),
     paidTodaySat: integer('paid_today_sat'),
@@ -267,6 +270,10 @@ export const payoutRuns = sqliteTable(
     /** Verification report summary (same checks as the public verifier). */
     verification: text('verification', { mode: 'json' }).notNull(),
     detail: text('detail'),
+    /** Public run summary (kind 30078, d = ndox:payout-run:<attestationId>): due, paid, shortfall. */
+    eventJson: text('event_json'),
+    publishedAt: text('published_at'),
+    publishResult: text('publish_result', { mode: 'json' }),
     createdAt: text('created_at').notNull(),
   },
   (t) => [index('payout_runs_created_idx').on(t.createdAt)],

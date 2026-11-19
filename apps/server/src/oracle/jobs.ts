@@ -39,7 +39,7 @@ import { announcements, attestations, forecasts, sites } from '../db/schema.js';
 import { open, seal } from '../lib/box.js';
 import { errorMessage, type Log } from '../lib/log.js';
 import { atUtc, isoSeconds, isValidDate, unixSeconds, type Clock } from '../lib/time.js';
-import type { Publisher, PublishResult } from '../nostr/publisher.js';
+import { dueForRetry, type Publisher, type PublishResult } from '../nostr/publisher.js';
 import { urlFor, type ForecastSource } from '../wave/source.js';
 
 /** UTC times of the daily loop. */
@@ -473,13 +473,6 @@ export async function attest(ctx: OracleCtx, siteId: string, date: string): Prom
 
 // ---------------------------------------------------------------------------
 // retry publishing
-
-const RETRY_AFTER_MS = 5 * 60_000;
-
-function dueForRetry(result: unknown, now: Date): boolean {
-  const at = (result as Partial<PublishResult> | null)?.at;
-  return !at || now.getTime() - Date.parse(at) >= RETRY_AFTER_MS;
-}
 
 /** Re-publishes this context's unpublished announcements and attestations (live or one replay run). */
 export async function publishPending(ctx: OracleCtx): Promise<number> {

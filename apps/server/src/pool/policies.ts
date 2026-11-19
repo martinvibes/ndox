@@ -7,17 +7,17 @@
  * Each change is published as a kind 30078 event signed by POOL_SECRET, without personal data.
  */
 import { finalizeEvent, type NostrEvent } from '@ndox/oracle';
-import { and, eq, gt, isNull, lte } from 'drizzle-orm';
+import { and, eq, gt, inArray, isNull, lte } from 'drizzle-orm';
 import { randomBytes } from 'node:crypto';
 import { cmToM, type Db } from '../db/index.js';
 import { crews, policies, sites } from '../db/schema.js';
 import { errorMessage } from '../lib/log.js';
+import { dueForRetry } from '../nostr/publisher.js';
 import { isoSeconds, unixSeconds } from '../lib/time.js';
 import { holderCommitment } from './crews.js';
 import type { MoneyCtx } from './deposits.js';
 
 export const KIND_APP_DATA = 30078;
-export const POLICY_RETRY_MS = 5 * 60_000;
 const WEEK_MS = 7 * 24 * 3600_000;
 
 export type PolicyRow = typeof policies.$inferSelect;
@@ -117,7 +117,10 @@ export function expirePolicies(db: DbLike, now: Date): number {
     .run().changes;
 }
 
-/** Active policies of active crews at `site` whose cover includes `at`. */
+/**
+ * Policies of active crews at `site` whose paid cover includes `at`. The time window decides, not
+ * the status: a policy marked expired after `at` (e.g. while the server was down) still covered it.
+ */
 export function eligiblePolicies(
   db: DbLike,
   site: string,
@@ -132,7 +135,7 @@ export function eligiblePolicies(
     .where(
       and(
         eq(policies.site, site),
-        eq(policies.status, 'active'),
+        inArray(policies.status, ['active', 'expired']),
         lte(policies.activeFrom, t),
         gt(policies.activeUntil, t),
         eq(crews.active, true),
@@ -211,8 +214,7 @@ export async function publishPendingPolicies(ctx: MoneyCtx): Promise<number> {
   const pending = ctx.db.select().from(policies).where(isNull(policies.publishedAt)).all();
   for (const p of pending) {
     if (!p.eventJson) continue;
-    const last = p.publishResult as { at?: string } | null;
-    if (last?.at && now.getTime() - Date.parse(last.at) < POLICY_RETRY_MS) continue;
+    if (!dueForRetry(p.publishResult, now)) continue;
     try {
       const res = await ctx.publisher.publish(JSON.parse(p.eventJson) as NostrEvent);
       ctx.db
