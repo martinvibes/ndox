@@ -50,12 +50,27 @@ importers:
       '@fastify/static':
         specifier: ^10.1.11
         version: 10.1.11
+      '@getalby/lightning-tools':
+        specifier: ^10.0.0
+        version: 10.0.0
+      '@getalby/sdk':
+        specifier: ^9.0.0
+        version: 9.0.0(typescript@6.0.3)
       '@ndox/oracle':
         specifier: workspace:*
         version: link:../../packages/oracle
       '@ndox/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@noble/curves':
+        specifier: ^2.4.0
+        version: 2.4.0
+      '@noble/hashes':
+        specifier: ^2.4.0
+        version: 2.4.0
+      '@scure/base':
+        specifier: ^2.0.0
+        version: 2.0.0
       better-sqlite3:
         specifier: ^13.2.0
         version: 13.2.0
@@ -1204,6 +1219,18 @@ packages:
   '@fastify/static@10.1.11':
     resolution: {integrity: sha512-WjEpDqkzOziIipghh4ki3ZNfLCmI1kRWlYKar3+9FiuY2LzoeogKiDqxIH68r6vYUSxvUzyEiV1BOP0yfW+glQ==}
 
+  '@getalby/lightning-tools@10.0.0':
+    resolution: {integrity: sha512-SU4KXcASldsy4UUgDf04Qh2zLjFd0oXQUIbfdocVJy13MhzaudyanOVR+CYrRKzBJbSMgpZMdZIMM853gviuPg==}
+    engines: {node: '>=14'}
+
+  '@getalby/lightning-tools@9.0.2':
+    resolution: {integrity: sha512-h58Bw8oQg9MXdGud5agfRnjGVY24Hzj8hCljdIEZyijXjfkVdSXet2Mpjc3lz/BpIdZz51uM8CXuwnXi0BOqFg==}
+    engines: {node: '>=14'}
+
+  '@getalby/sdk@9.0.0':
+    resolution: {integrity: sha512-lUepv1KWXVAuycHsl3qYMkgvwol1fgjjyPDKEfpeQ9soNN3nupf8YAX+mbldK+w+caGai3iXfykzFmT7kmSfBw==}
+    engines: {node: '>=22'}
+
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
     engines: {node: '>=18.18.0'}
@@ -1831,6 +1858,9 @@ packages:
 
   '@vitest/spy@5.1.1':
     resolution: {integrity: sha512-6K8C6alQG1/Yc8/ZI22iJS7JEsxPdVzqtqDq+/xM4Z0mGVykemMVjLhqMy/q6/IHYG3kKD8hKSwRen/ZdyI9vQ==}
+
+  '@webbtc/webln-types@3.0.0':
+    resolution: {integrity: sha512-aXfTHLKz5lysd+6xTeWl+qHNh/p3qVYbeLo+yDN5cUDmhie2ZoGvkppfWxzbGkcFBzb6dJyQ2/i2cbmDHas+zQ==}
 
   abstract-logging@2.0.1:
     resolution: {integrity: sha512-2BjRTZxTPvheOvGbBslFSYOUkr+SjPtOnrLP33f+VIWLzezQpZcqVg7ja3L4dBXmzzgwT+a029jRx5PCi3JuiA==}
@@ -4522,6 +4552,19 @@ snapshots:
       fastq: 1.20.3
       glob: 14.0.6
 
+  '@getalby/lightning-tools@10.0.0': {}
+
+  '@getalby/lightning-tools@9.0.2': {}
+
+  '@getalby/sdk@9.0.0(typescript@6.0.3)':
+    dependencies:
+      '@getalby/lightning-tools': 9.0.2
+      '@webbtc/webln-types': 3.0.0
+      nostr-tools: 2.26.1(typescript@6.0.3)
+    transitivePeerDependencies:
+      - nostr-wasm
+      - typescript
+
   '@humanfs/core@0.19.2':
     dependencies:
       '@humanfs/types': 0.15.0
@@ -5016,6 +5059,8 @@ snapshots:
       vite: 8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)
 
   '@vitest/spy@5.1.1': {}
+
+  '@webbtc/webln-types@3.0.0': {}
 
   abstract-logging@2.0.1: {}
 

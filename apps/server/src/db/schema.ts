@@ -63,7 +63,10 @@ export const policies = sqliteTable(
       .references(() => sites.id),
     payoutFcfa: integer('payout_fcfa').notNull(),
     thresholdCm: integer('threshold_cm').notNull(),
+    /** Premium for the whole cover period (weeks × weekly premium). */
     premiumFcfa: integer('premium_fcfa').notNull(),
+    /** Cover length per premium payment, in weeks. */
+    weeks: integer('weeks').notNull().default(1),
     fundedBy: text('funded_by', { enum: ['crew', 'clpa', 'sponsor'] }).notNull(),
     status: text('status', { enum: ['pending', 'active', 'expired', 'cancelled'] })
       .notNull()
@@ -176,18 +179,26 @@ export const payouts = sqliteTable(
       .default('pending'),
     attempts: integer('attempts').notNull().default(0),
     nextAttemptAt: text('next_attempt_at'),
+    /** Wallet that pays: 'fake' payouts are simulated. */
+    wallet: text('wallet', { enum: ['fake', 'nwc'] }).notNull(),
+    /** Invoice obtained from the crew's Lightning address (stored before paying). */
     invoice: text('invoice'),
     paymentHash: text('payment_hash'),
+    invoiceExpiresAt: text('invoice_expires_at'),
     preimage: text('preimage'),
+    feeSat: integer('fee_sat'),
+    paidAt: text('paid_at'),
     error: text('error'),
     receiptJson: text('receipt_json'),
     receiptPublishedAt: text('receipt_published_at'),
+    receiptPublishResult: text('receipt_publish_result', { mode: 'json' }),
     replay: bool('replay').notNull().default(false),
     createdAt: createdAt(),
     updatedAt: text('updated_at').notNull().default(nowIso),
   },
   (t) => [
     uniqueIndex('payouts_policy_attestation_uq').on(t.policyId, t.attestationId),
+    uniqueIndex('payouts_payment_hash_uq').on(t.paymentHash),
     index('payouts_status_idx').on(t.status),
   ],
 );
@@ -210,12 +221,84 @@ export const deposits = sqliteTable(
     crewId: text('crew_id').references(() => crews.id),
     site: text('site'),
     memo: text('memo'),
+    /** Wallet that issued the invoice: 'fake' deposits are simulated. */
+    wallet: text('wallet', { enum: ['fake', 'nwc'] }).notNull(),
     demo: bool('demo').notNull().default(true),
     createdAt: createdAt(),
     paidAt: text('paid_at'),
     expiresAt: text('expires_at'),
   },
   (t) => [index('deposits_status_idx').on(t.status)],
+);
+
+/**
+ * One row per attestation the payout engine handled: the frozen plan (price, balance, cap,
+ * pro-rata factor, shortfall). Inserted in the same transaction as its payouts, so re-running
+ * the engine never re-plans with a different price or balance.
+ */
+export const payoutRuns = sqliteTable(
+  'payout_runs',
+  {
+    attestationId: text('attestation_id')
+      .primaryKey()
+      .references(() => attestations.eventId),
+    site: text('site').notNull(),
+    date: text('date').notNull(),
+    outcome: text('outcome', { enum: OUTCOME_VALUES }).notNull(),
+    /** planned: payouts created · no_payout: not danger or nobody eligible · invalid: failed verification */
+    status: text('status', { enum: ['planned', 'no_payout', 'invalid'] }).notNull(),
+    replay: bool('replay').notNull().default(false),
+    wallet: text('wallet', { enum: ['fake', 'nwc'] }).notNull(),
+    policies: integer('policies').notNull().default(0),
+    xofPerBtc: integer('xof_per_btc'),
+    priceAsOf: text('price_as_of'),
+    priceStale: bool('price_stale'),
+    balanceSat: integer('balance_sat'),
+    reserveFloorSat: integer('reserve_floor_sat'),
+    dailyCapSat: integer('daily_cap_sat'),
+    paidTodaySat: integer('paid_today_sat'),
+    dueSat: integer('due_sat').notNull().default(0),
+    availableSat: integer('available_sat'),
+    planSat: integer('plan_sat').notNull().default(0),
+    shortfallSat: integer('shortfall_sat').notNull().default(0),
+    factorPpm: integer('factor_ppm'),
+    limitedBy: text('limited_by', { enum: ['balance', 'daily_cap'] }),
+    /** Verification report summary (same checks as the public verifier). */
+    verification: text('verification', { mode: 'json' }).notNull(),
+    detail: text('detail'),
+    createdAt: text('created_at').notNull(),
+  },
+  (t) => [index('payout_runs_created_idx').on(t.createdAt)],
+);
+
+/**
+ * FakeWallet ledger (WALLET_MODE=fake, tests and replays). Simulated money only: every row is
+ * shown with the "Simulé" badge. An invoice belongs to the account that issued it ('pool',
+ * 'replay:<runId>', or 'ext:<hash>' for a demo crew's Lightning address); `paidBy` is the
+ * account that paid it, or 'simulated' for the demo "simulate payment" button.
+ */
+export const fakeInvoices = sqliteTable(
+  'fake_invoices',
+  {
+    paymentHash: text('payment_hash').primaryKey(),
+    account: text('account').notNull(),
+    seq: integer('seq').notNull(),
+    invoice: text('invoice').notNull(),
+    preimage: text('preimage').notNull(),
+    amountSat: integer('amount_sat').notNull(),
+    memo: text('memo').notNull(),
+    status: text('status', { enum: ['open', 'paid'] })
+      .notNull()
+      .default('open'),
+    createdAt: text('created_at').notNull(),
+    expiresAt: text('expires_at').notNull(),
+    paidAt: text('paid_at'),
+    paidBy: text('paid_by'),
+  },
+  (t) => [
+    uniqueIndex('fake_invoices_account_seq_uq').on(t.account, t.seq),
+    index('fake_invoices_paid_by_idx').on(t.paidBy),
+  ],
 );
 
 export const notifications = sqliteTable(
