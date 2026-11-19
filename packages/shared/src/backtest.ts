@@ -61,7 +61,9 @@ export function addDays(date: string, n: number): string {
 }
 
 export function dayIndex(series: Pick<DailySeries, 'start'>, date: string): number {
-  return Math.round((Date.parse(`${date}T00:00:00Z`) - Date.parse(`${series.start}T00:00:00Z`)) / 86_400_000);
+  return Math.round(
+    (Date.parse(`${date}T00:00:00Z`) - Date.parse(`${series.start}T00:00:00Z`)) / 86_400_000,
+  );
 }
 
 export function dailyAt(series: DailySeries, date: string): DailyStat | undefined {
@@ -71,7 +73,8 @@ export function dailyAt(series: DailySeries, date: string): DailyStat | undefine
 }
 
 const isAllYear = (months: readonly number[]) => months.length === 12;
-const wraps = (months: readonly number[]) => !isAllYear(months) && months.includes(12) && months.includes(1);
+const wraps = (months: readonly number[]) =>
+  !isAllYear(months) && months.includes(12) && months.includes(1);
 
 /**
  * Season label for a date: "2025" for all-year sites, "2024-25" for a Dec–Jun season
@@ -180,7 +183,8 @@ export function weeklyPremiumFcfa(p: {
   seasonDays: number;
   loading: number;
 }): number {
-  if (!Number.isInteger(p.payoutFcfa) || p.payoutFcfa < 0) throw new Error('payoutFcfa must be an integer');
+  if (!Number.isInteger(p.payoutFcfa) || p.payoutFcfa < 0)
+    throw new Error('payoutFcfa must be an integer');
   const weeks = p.seasonDays / 7;
   const raw = ((p.meanDangerDays * p.payoutFcfa) / weeks) * (1 + p.loading);
   return Math.ceil(Math.round(raw * 1000) / 1000);

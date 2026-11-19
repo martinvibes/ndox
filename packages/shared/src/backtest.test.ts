@@ -29,7 +29,9 @@ function hourly(days: string[], f: (day: number, hour: number) => number | null)
 
 describe('dailyWindowMaxima', () => {
   it('computes the 06–18 max and valid hours per day', () => {
-    const { time, values } = hourly(['2026-02-26', '2026-02-27'], (d, h) => (h === 3 ? 9 : d + h / 10));
+    const { time, values } = hourly(['2026-02-26', '2026-02-27'], (d, h) =>
+      h === 3 ? 9 : d + h / 10,
+    );
     const s = dailyWindowMaxima(time, values);
     expect(s.start).toBe('2026-02-26');
     expect(s.maxM).toEqual([1.7, 2.7]);
@@ -83,7 +85,10 @@ describe('dangerDaysBySeason', () => {
       { season: '2025', dangerDays: 12, days: 365, missingDays: 0 },
     ]);
     // Kayar: only 2024-25 is complete (Dec 2024 – Jun 2025)
-    const k = dangerDaysBySeason({ start, maxM, valid }, { thresholdM: 2.5, minValidHours: 10, seasonMonths: KAYAR });
+    const k = dangerDaysBySeason(
+      { start, maxM, valid },
+      { thresholdM: 2.5, minValidHours: 10, seasonMonths: KAYAR },
+    );
     expect(k.map((c) => c.season)).toEqual(['2024-25']);
     expect(k[0]?.dangerDays).toBe(7);
   });
@@ -91,22 +96,45 @@ describe('dangerDaysBySeason', () => {
 
 describe('summarize and premium', () => {
   it('computes mean, nearest-rank p90, worst', () => {
-    expect(summarize([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])).toEqual({ n: 10, mean: 5.5, p90: 9, worst: 10, best: 1 });
+    expect(summarize([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])).toEqual({
+      n: 10,
+      mean: 5.5,
+      p90: 9,
+      worst: 10,
+      best: 1,
+    });
     expect(summarize([])).toEqual({ n: 0, mean: 0, p90: 0, worst: 0, best: 0 });
   });
 
   it('prices the weekly premium from the mean and rounds up', () => {
     // 10 danger days × 2000 / (212.25/7) × 1.25 = 824.5…
-    expect(weeklyPremiumFcfa({ meanDangerDays: 10, payoutFcfa: 2000, seasonDays: 212.25, loading: 0.25 })).toBe(825);
-    expect(weeklyPremiumFcfa({ meanDangerDays: 0, payoutFcfa: 2000, seasonDays: 365.25, loading: 0.25 })).toBe(0);
-    expect(() => weeklyPremiumFcfa({ meanDangerDays: 1, payoutFcfa: 2.5, seasonDays: 7, loading: 0 })).toThrow();
+    expect(
+      weeklyPremiumFcfa({
+        meanDangerDays: 10,
+        payoutFcfa: 2000,
+        seasonDays: 212.25,
+        loading: 0.25,
+      }),
+    ).toBe(825);
+    expect(
+      weeklyPremiumFcfa({ meanDangerDays: 0, payoutFcfa: 2000, seasonDays: 365.25, loading: 0.25 }),
+    ).toBe(0);
+    expect(() =>
+      weeklyPremiumFcfa({ meanDangerDays: 1, payoutFcfa: 2.5, seasonDays: 7, loading: 0 }),
+    ).toThrow();
   });
 });
 
 describe('openmeteo helpers', () => {
   it('builds stable URLs', () => {
     expect(
-      marineUrl({ lat: 14.95, lon: -17.2, model: 'ecmwf_wam', startDate: '2026-02-27', endDate: '2026-02-27' }),
+      marineUrl({
+        lat: 14.95,
+        lon: -17.2,
+        model: 'ecmwf_wam',
+        startDate: '2026-02-27',
+        endDate: '2026-02-27',
+      }),
     ).toBe(
       'https://marine-api.open-meteo.com/v1/marine?latitude=14.95&longitude=-17.20&hourly=wave_height,swell_wave_height&models=ecmwf_wam&timezone=GMT&start_date=2026-02-27&end_date=2026-02-27',
     );
@@ -117,7 +145,11 @@ describe('openmeteo helpers', () => {
       latitude: 14.94,
       longitude: -17.21,
       hourly_units: { swell_wave_height: 'undefined' },
-      hourly: { time: ['2026-02-27T06:00', '2026-02-27T07:00'], wave_height: [2.8, 2.86], swell_wave_height: [null, null] },
+      hourly: {
+        time: ['2026-02-27T06:00', '2026-02-27T07:00'],
+        wave_height: [2.8, 2.86],
+        swell_wave_height: [null, null],
+      },
     });
     const r = parseMarineResponse(body);
     expect(seriesFromResponse(r, 'wave_height').values).toEqual([2.8, 2.86]);

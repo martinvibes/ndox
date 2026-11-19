@@ -123,7 +123,11 @@ describe('attest / verify', () => {
     const n = generateNonce();
     const a = attest(secret, n.k, 'indisponible');
     const res = verifyAttestation(
-      { oraclePubkey: pub, noncePoint: n.noncePoint, outcomes: ['calme', 'danger', 'indisponible'] },
+      {
+        oraclePubkey: pub,
+        noncePoint: n.noncePoint,
+        outcomes: ['calme', 'danger', 'indisponible'],
+      },
       { noncePoint: a.noncePoint, outcome: 'indisponible', s: a.s },
     );
     expect(res).toEqual({ ok: true });
@@ -161,9 +165,12 @@ describe('odd-Y normalisation', () => {
       expect(Pn.y % 2n).toBe(0n);
       expect(toHex32(Pn.x)).toBe(getPublicKey(secret));
 
-      const nonce = generateNonce((len) => crypto.getRandomValues(new Uint8Array(len)), (raw) => {
-        if (G.multiply(raw).toAffine().y % 2n === 1n) oddR++;
-      });
+      const nonce = generateNonce(
+        (len) => crypto.getRandomValues(new Uint8Array(len)),
+        (raw) => {
+          if (G.multiply(raw).toAffine().y % 2n === 1n) oddR++;
+        },
+      );
       const R = G.multiply(toBig(nonce.k)).toAffine();
       expect(R.y % 2n).toBe(0n);
       expect(toHex32(R.x)).toBe(nonce.noncePoint);

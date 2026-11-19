@@ -42,7 +42,10 @@ describe('windowStats', () => {
 
   it('accepts timestamps with or without a Z suffix and with seconds', () => {
     const t = day().map((x) => `${x}:00Z`);
-    expect(windowStats(t, series(Array(12).fill(3)), WINDOW)).toEqual({ windowMaxM: 3, validHours: 12 });
+    expect(windowStats(t, series(Array(12).fill(3)), WINDOW)).toEqual({
+      windowMaxM: 3,
+      validHours: 12,
+    });
   });
 
   it('returns no valid hours when the series misses the window', () => {
@@ -75,7 +78,9 @@ describe('decideOutcome', () => {
   });
 
   it('is indisponible when a model is missing or has no max', () => {
-    expect(decideOutcome(RULE, [{ id: 'ecmwf_wam', windowMaxM: 3, validHours: 12 }])).toBe('indisponible');
+    expect(decideOutcome(RULE, [{ id: 'ecmwf_wam', windowMaxM: 3, validHours: 12 }])).toBe(
+      'indisponible',
+    );
     expect(decideOutcome(RULE, obs(null, 12, 3, 12))).toBe('indisponible');
   });
 

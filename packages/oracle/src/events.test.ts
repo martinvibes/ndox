@@ -27,8 +27,20 @@ const RULE = {
 const DATA = {
   fetchedAt: '2026-02-27T05:00:12Z',
   models: [
-    { id: 'ecmwf_wam', windowMaxM: 2.86, validHours: 12, url: 'https://x/a', sha256: 'aa'.repeat(32) },
-    { id: 'ncep_gfswave025', windowMaxM: 2.62, validHours: 12, url: 'https://x/b', sha256: 'bb'.repeat(32) },
+    {
+      id: 'ecmwf_wam',
+      windowMaxM: 2.86,
+      validHours: 12,
+      url: 'https://x/a',
+      sha256: 'aa'.repeat(32),
+    },
+    {
+      id: 'ncep_gfswave025',
+      windowMaxM: 2.62,
+      validHours: 12,
+      url: 'https://x/b',
+      sha256: 'bb'.repeat(32),
+    },
   ],
 };
 
@@ -55,7 +67,10 @@ function setup(opts: { replayRunId?: string; createdAt?: number } = {}) {
 describe('nostr event primitives', () => {
   it('signs events that nostr-tools accepts', () => {
     const secret = generateSecretKey();
-    const ev = finalizeEvent({ kind: 1, created_at: 1700000000, tags: [['t', 'ndox']], content: 'Salam' }, secret);
+    const ev = finalizeEvent(
+      { kind: 1, created_at: 1700000000, tags: [['t', 'ndox']], content: 'Salam' },
+      secret,
+    );
     expect(ev.pubkey).toBe(getPublicKey(secret));
     expect(verifyEvent(ev)).toBe(true);
     expect(ntVerifyEvent({ ...ev })).toBe(true);
@@ -66,7 +81,9 @@ describe('nostr event primitives', () => {
     const ev = finalizeEvent({ kind: 1, created_at: 1700000000, tags: [], content: 'a' }, secret);
     expect(verifyEvent({ ...ev, content: 'b' })).toBe(false);
     expect(verifyEvent({ ...ev, created_at: ev.created_at + 1 })).toBe(false);
-    expect(verifyEvent({ ...ev, sig: ev.sig.replace(/^./, ev.sig[0] === 'a' ? 'b' : 'a') })).toBe(false);
+    expect(verifyEvent({ ...ev, sig: ev.sig.replace(/^./, ev.sig[0] === 'a' ? 'b' : 'a') })).toBe(
+      false,
+    );
   });
 });
 
@@ -104,9 +121,15 @@ describe('announcement (kind 88)', () => {
 
   it('rejects malformed content', () => {
     const { secret } = setup();
-    const bad = finalizeEvent({ kind: 88, created_at: ANNOUNCE_AT, tags: [], content: '{"v":2}' }, secret);
+    const bad = finalizeEvent(
+      { kind: 88, created_at: ANNOUNCE_AT, tags: [], content: '{"v":2}' },
+      secret,
+    );
     expect(() => parseAnnouncement(bad)).toThrow();
-    const notJson = finalizeEvent({ kind: 88, created_at: ANNOUNCE_AT, tags: [], content: 'hello' }, secret);
+    const notJson = finalizeEvent(
+      { kind: 88, created_at: ANNOUNCE_AT, tags: [], content: 'hello' },
+      secret,
+    );
     expect(() => parseAnnouncement(notJson)).toThrow();
     expect(() => parseAnnouncement({ kind: 88 })).toThrow();
   });
@@ -167,7 +190,14 @@ describe('attestation (kind 89)', () => {
   it('refuses outcomes that were not announced', () => {
     const { secret, nonce, ann } = setup();
     expect(() =>
-      buildAttestation({ secret, announcement: ann.event, nonceK: nonce.k, outcome: 'maybe', data: DATA, createdAt: ATTEST_AT }),
+      buildAttestation({
+        secret,
+        announcement: ann.event,
+        nonceK: nonce.k,
+        outcome: 'maybe',
+        data: DATA,
+        createdAt: ATTEST_AT,
+      }),
     ).toThrow(/outcome/);
   });
 });
@@ -188,7 +218,9 @@ describe('verifyAttestationEvent', () => {
 
   it('passes every check for an honest pair', () => {
     const { ann, att, secret } = pair();
-    const report = verifyAttestationEvent(ann.event, att.event, { expectedOraclePubkey: getPublicKey(secret) });
+    const report = verifyAttestationEvent(ann.event, att.event, {
+      expectedOraclePubkey: getPublicKey(secret),
+    });
     expect(report.ok).toBe(true);
     expect(report.checks.map((c) => c.id)).toEqual([
       'announcement_signature',
@@ -207,14 +239,23 @@ describe('verifyAttestationEvent', () => {
 
   it('fails when the oracle is not the expected one', () => {
     const { ann, att } = pair();
-    const report = verifyAttestationEvent(ann.event, att.event, { expectedOraclePubkey: getPublicKey(generateSecretKey()) });
+    const report = verifyAttestationEvent(ann.event, att.event, {
+      expectedOraclePubkey: getPublicKey(generateSecretKey()),
+    });
     expect(report.ok).toBe(false);
     expect(report.checks.find((c) => c.id === 'known_oracle')?.ok).toBe(false);
   });
 
   it('fails when the announcement was created after the window opened', () => {
     const s = setup({ createdAt: Date.UTC(2026, 1, 27, 7) / 1000 });
-    const att = buildAttestation({ secret: s.secret, announcement: s.ann.event, nonceK: s.nonce.k, outcome: 'calme', data: DATA, createdAt: ATTEST_AT });
+    const att = buildAttestation({
+      secret: s.secret,
+      announcement: s.ann.event,
+      nonceK: s.nonce.k,
+      outcome: 'calme',
+      data: DATA,
+      createdAt: ATTEST_AT,
+    });
     const report = verifyAttestationEvent(s.ann.event, att.event);
     expect(report.ok).toBe(false);
     expect(report.checks.find((c) => c.id === 'nonce_committed_before_window')?.ok).toBe(false);
@@ -235,7 +276,10 @@ describe('verifyAttestationEvent', () => {
     const other = generateNonce();
     const a = attest(secret, other.k, 'calme');
     const content = { ...att.content, outcome: 'calme', noncePoint: a.noncePoint, s: a.s };
-    const resigned = finalizeEvent({ kind: 89, created_at: ATTEST_AT, tags: att.event.tags, content: JSON.stringify(content) }, secret);
+    const resigned = finalizeEvent(
+      { kind: 89, created_at: ATTEST_AT, tags: att.event.tags, content: JSON.stringify(content) },
+      secret,
+    );
     const report = verifyAttestationEvent(ann.event, resigned);
     expect(report.ok).toBe(false);
     expect(report.checks.find((c) => c.id === 'attestation_signature')?.ok).toBe(true);

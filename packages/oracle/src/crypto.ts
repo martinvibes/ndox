@@ -13,7 +13,13 @@
  */
 import { invert, mod } from '@noble/curves/abstract/modular.js';
 import { schnorr } from '@noble/curves/secp256k1.js';
-import { bytesToHex, concatBytes, hexToBytes, randomBytes, utf8ToBytes } from '@noble/hashes/utils.js';
+import {
+  bytesToHex,
+  concatBytes,
+  hexToBytes,
+  randomBytes,
+  utf8ToBytes,
+} from '@noble/hashes/utils.js';
 
 const Point = schnorr.Point;
 const G = Point.BASE;

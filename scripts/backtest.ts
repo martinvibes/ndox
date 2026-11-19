@@ -56,7 +56,9 @@ function inRange(season: string): boolean {
 
 /** Max number of danger days in any 7 consecutive days. */
 function worstWeek(d: DailySeries, threshold: number): number {
-  const flags = d.maxM.map((m, i) => (m !== null && (d.valid[i] ?? 0) >= MIN_VALID_HOURS && m >= threshold ? 1 : 0));
+  const flags = d.maxM.map((m, i) =>
+    m !== null && (d.valid[i] ?? 0) >= MIN_VALID_HOURS && m >= threshold ? 1 : 0,
+  );
   let best = 0;
   let run = 0;
   for (let i = 0; i < flags.length; i++) {
@@ -77,14 +79,23 @@ function liveRuleOn(recent: RecentSeed, date: string, thresholdM: number) {
     const v = s ? dailyAt(s, date) : undefined;
     return { id, windowMaxM: v?.maxM ?? null, validHours: v?.validHours ?? 0 };
   });
-  const outcome = decideOutcome({ thresholdM, minValidHours: MIN_VALID_HOURS, models: LIVE_MODELS }, obs);
+  const outcome = decideOutcome(
+    { thresholdM, minValidHours: MIN_VALID_HOURS, models: LIVE_MODELS },
+    obs,
+  );
   return { outcome, models: obs };
 }
 
 function siteBacktest(site: SiteConfig, era5: Era5Seed, recent: RecentSeed) {
-  const opts = { thresholdM: site.thresholdM, minValidHours: MIN_VALID_HOURS, seasonMonths: site.seasonMonths };
+  const opts = {
+    thresholdM: site.thresholdM,
+    minValidHours: MIN_VALID_HOURS,
+    seasonMonths: site.seasonMonths,
+  };
   const seasons = dangerDaysBySeason(era5.daily, opts).filter((c) => inRange(c.season));
-  const years = dangerDaysBySeason(era5.daily, { ...opts, seasonMonths: ALL_YEAR }).filter((c) => inRange(c.season));
+  const years = dangerDaysBySeason(era5.daily, { ...opts, seasonMonths: ALL_YEAR }).filter((c) =>
+    inRange(c.season),
+  );
   const summary = summarize(seasons.map((c) => c.dangerDays));
   const days = seasonDays(site.seasonMonths);
   const sensitivity = [2, 2.5, 3].map((t) => ({
@@ -102,7 +113,8 @@ function siteBacktest(site: SiteConfig, era5: Era5Seed, recent: RecentSeed) {
   let liveRule = null;
   if (ecmwf && gfs) {
     const from = ecmwf.start > gfs.wave_height.start ? ecmwf.start : gfs.wave_height.start;
-    const to = seriesEnd(ecmwf) < seriesEnd(gfs.wave_height) ? seriesEnd(ecmwf) : seriesEnd(gfs.wave_height);
+    const to =
+      seriesEnd(ecmwf) < seriesEnd(gfs.wave_height) ? seriesEnd(ecmwf) : seriesEnd(gfs.wave_height);
     const dangerDates: string[] = [];
     let unavailable = 0;
     let n = 0;
@@ -119,7 +131,9 @@ function siteBacktest(site: SiteConfig, era5: Era5Seed, recent: RecentSeed) {
   let swell = null;
   if (gfs?.swell_wave_height) {
     const count = (s: DailySeries) =>
-      s.maxM.filter((m, i) => m !== null && (s.valid[i] ?? 0) >= MIN_VALID_HOURS && m >= site.thresholdM).length;
+      s.maxM.filter(
+        (m, i) => m !== null && (s.valid[i] ?? 0) >= MIN_VALID_HOURS && m >= site.thresholdM,
+      ).length;
     swell = {
       model: 'ncep_gfswave025',
       from: gfs.wave_height.start,
@@ -135,11 +149,20 @@ function siteBacktest(site: SiteConfig, era5: Era5Seed, recent: RecentSeed) {
     thresholdM: site.thresholdM,
     seasonMonths: site.seasonMonths,
     era5Grid: era5.grid,
-    seasons: seasons.map(({ season, dangerDays, missingDays }) => ({ season, dangerDays, missingDays })),
+    seasons: seasons.map(({ season, dangerDays, missingDays }) => ({
+      season,
+      dangerDays,
+      missingDays,
+    })),
     years: years.map(({ season, dangerDays }) => ({ year: Number(season), dangerDays })),
     summary,
     weeksInSeason: Math.round((days / 7) * 100) / 100,
-    premiumWeeklyFcfa: weeklyPremiumFcfa({ meanDangerDays: summary.mean, payoutFcfa: PAYOUT_FCFA, seasonDays: days, loading: LOADING }),
+    premiumWeeklyFcfa: weeklyPremiumFcfa({
+      meanDangerDays: summary.mean,
+      payoutFcfa: PAYOUT_FCFA,
+      seasonDays: days,
+      loading: LOADING,
+    }),
     reservePerPolicyFcfa: summary.worst * PAYOUT_FCFA,
     worstWeekDangerDays: worstWeek(era5.daily, site.thresholdM),
     sensitivity,
@@ -182,7 +205,11 @@ const rows = PRESS_ALERT_DAYS.flatMap((a) =>
 function rate(values: (boolean | null)[]) {
   const known = values.filter((v): v is boolean => v !== null);
   const matched = known.filter(Boolean).length;
-  return { matched, total: known.length, rate: known.length ? Math.round((matched / known.length) * 1000) / 1000 : null };
+  return {
+    matched,
+    total: known.length,
+    rate: known.length ? Math.round((matched / known.length) * 1000) / 1000 : null,
+  };
 }
 
 // Threshold calibration: how the alert match rate, danger-day frequency and premium move with the
@@ -221,7 +248,12 @@ const calibration = CALIBRATION_THRESHOLDS.map((t) => {
       return {
         site: site.id,
         meanDangerDaysPerSeason: mean,
-        premiumWeeklyFcfa: weeklyPremiumFcfa({ meanDangerDays: mean, payoutFcfa: PAYOUT_FCFA, seasonDays: seasonDays(site.seasonMonths), loading: LOADING }),
+        premiumWeeklyFcfa: weeklyPremiumFcfa({
+          meanDangerDays: mean,
+          payoutFcfa: PAYOUT_FCFA,
+          seasonDays: seasonDays(site.seasonMonths),
+          loading: LOADING,
+        }),
         liveRuleDangerDays: liveDangerDays,
       };
     }),
@@ -247,7 +279,9 @@ const result = {
     note: 'Dates d’alerte ANACIM relevées dans la presse, pas une archive officielle.',
     rows,
     era5: rate(rows.map((r) => r.era5Fired)),
-    live: rate(rows.map((r) => (r.liveOutcome === 'indisponible' ? null : r.liveOutcome === 'danger'))),
+    live: rate(
+      rows.map((r) => (r.liveOutcome === 'indisponible' ? null : r.liveOutcome === 'danger')),
+    ),
   },
   calibration,
 };
@@ -255,7 +289,9 @@ const result = {
 await writeFile(join(SEED, 'backtest.json'), JSON.stringify(result, null, 2) + '\n');
 
 // ---- print ---------------------------------------------------------------
-console.log(`\nNdox backtest — ERA5-Ocean ${FIRST_YEAR}–${LAST_YEAR}, wave_height 06–18 UTC max ≥ threshold\n`);
+console.log(
+  `\nNdox backtest — ERA5-Ocean ${FIRST_YEAR}–${LAST_YEAR}, wave_height 06–18 UTC max ≥ threshold\n`,
+);
 console.log('site           thr   seasons  mean   p90  worst  worst7d  premium/wk  reserve/policy');
 for (const s of sites) {
   console.log(
@@ -264,27 +300,42 @@ for (const s of sites) {
 }
 console.log('\nLive two-model rule over the live models’ archive:');
 for (const s of sites) {
-  if (s.liveRule) console.log(`  ${s.site.padEnd(14)} ${s.liveRule.from} → ${s.liveRule.to}: ${s.liveRule.dangerDates.length} danger day(s) ${s.liveRule.dangerDates.join(', ')}`);
+  if (s.liveRule)
+    console.log(
+      `  ${s.site.padEnd(14)} ${s.liveRule.from} → ${s.liveRule.to}: ${s.liveRule.dangerDates.length} danger day(s) ${s.liveRule.dangerDates.join(', ')}`,
+    );
 }
 console.log('\nSwell vs total wave height (GFS-Wave only):');
 for (const s of sites) {
-  if (s.swell) console.log(`  ${s.site.padEnd(14)} ${s.swell.from} → ${s.swell.to}: wave_height ${s.swell.waveHeightDays} d, swell_wave_height ${s.swell.swellWaveHeightDays} d`);
+  if (s.swell)
+    console.log(
+      `  ${s.site.padEnd(14)} ${s.swell.from} → ${s.swell.to}: wave_height ${s.swell.waveHeightDays} d, swell_wave_height ${s.swell.swellWaveHeightDays} d`,
+    );
 }
 console.log('\nAlert-day check (press-reported ANACIM alerts):');
 console.log('date        site           ERA5 max  ERA5   ECMWF  GFS    live rule');
 for (const r of rows) {
   const [a, b] = r.live;
-  const f = (v: number | null | undefined) => (v === null || v === undefined ? '  -  ' : v.toFixed(2));
+  const f = (v: number | null | undefined) =>
+    v === null || v === undefined ? '  -  ' : v.toFixed(2);
   console.log(
     `${r.date}  ${r.site.padEnd(13)}  ${f(r.era5MaxM).padStart(6)}  ${r.era5Fired === null ? '  -  ' : r.era5Fired ? ' oui ' : ' non '}  ${f(a?.windowMaxM)}  ${f(b?.windowMaxM)}  ${r.liveOutcome}`,
   );
 }
-const pct = (x: { rate: number | null }) => (x.rate === null ? 'n/a' : `${Math.round(x.rate * 100)} %`);
-console.log('\nThreshold calibration (alert match rate · mean ERA5 danger days per season · live-rule days since Nov 2025):');
+const pct = (x: { rate: number | null }) =>
+  x.rate === null ? 'n/a' : `${Math.round(x.rate * 100)} %`;
+console.log(
+  '\nThreshold calibration (alert match rate · mean ERA5 danger days per season · live-rule days since Nov 2025):',
+);
 for (const c of calibration) {
   console.log(
     `  ${c.thresholdM.toFixed(2)} m  ERA5 ${pct(c.alertMatchEra5).padStart(5)}  live ${pct(c.alertMatchLive).padStart(5)}  ` +
-      c.sites.map((s) => `${s.site} ${s.meanDangerDaysPerSeason.toFixed(1)}d/${s.liveRuleDangerDays}d ${s.premiumWeeklyFcfa}F`).join('  '),
+      c.sites
+        .map(
+          (s) =>
+            `${s.site} ${s.meanDangerDaysPerSeason.toFixed(1)}d/${s.liveRuleDangerDays}d ${s.premiumWeeklyFcfa}F`,
+        )
+        .join('  '),
   );
 }
 console.log(

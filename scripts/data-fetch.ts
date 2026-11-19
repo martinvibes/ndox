@@ -55,7 +55,12 @@ async function fetchEnvelope(url: string): Promise<Envelope> {
       const body = await res.text();
       if (!res.ok) throw new Error(`HTTP ${res.status}: ${body.slice(0, 200)}`);
       parseMarineResponse(body); // throws on API errors
-      return { url, fetchedAt: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'), sha256: sha256(body), body };
+      return {
+        url,
+        fetchedAt: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'),
+        sha256: sha256(body),
+        body,
+      };
     } catch (err) {
       lastErr = err;
       await sleep(1000 * attempt * attempt);
@@ -176,7 +181,13 @@ async function fetchForecasts(): Promise<void> {
   for (const date of REPLAY_DATES) {
     for (const site of SITES) {
       for (const model of LIVE_MODELS) {
-        const url = marineUrl({ lat: site.lat, lon: site.lon, model, startDate: date, endDate: date });
+        const url = marineUrl({
+          lat: site.lat,
+          lon: site.lon,
+          model,
+          startDate: date,
+          endDate: date,
+        });
         const path = join(SEED, 'forecasts', date, site.id, `${model}.json`);
         await cachedEnvelope(path, url);
         process.stdout.write(`\rforecast ${date} ${site.id} ${model}        `);

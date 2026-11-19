@@ -18,13 +18,32 @@ A tiny DLC-style oracle: BIP340 Schnorr attestations with a **pre-committed nonc
 
 ```ts
 import {
-  generateNonce, attest, verifyAttestation, recoverKey,
-  buildAnnouncement, buildAttestation, verifyAttestationEvent,
+  generateNonce,
+  attest,
+  verifyAttestation,
+  recoverKey,
+  buildAnnouncement,
+  buildAttestation,
+  verifyAttestationEvent,
 } from '@ndox/oracle';
 
-const nonce = generateNonce();                 // keep nonce.k secret, publish nonce.noncePoint
-const ann = buildAnnouncement({ secret, site: 'kayar', date: '2026-11-20', noncePoint: nonce.noncePoint, rule, createdAt });
-const att = buildAttestation({ secret, announcement: ann.event, nonceK: nonce.k, outcome: 'danger', data, createdAt });
+const nonce = generateNonce(); // keep nonce.k secret, publish nonce.noncePoint
+const ann = buildAnnouncement({
+  secret,
+  site: 'kayar',
+  date: '2026-11-20',
+  noncePoint: nonce.noncePoint,
+  rule,
+  createdAt,
+});
+const att = buildAttestation({
+  secret,
+  announcement: ann.event,
+  nonceK: nonce.k,
+  outcome: 'danger',
+  data,
+  createdAt,
+});
 const report = verifyAttestationEvent(ann.event, att.event, { expectedOraclePubkey });
 report.ok; // every check passed
 ```

@@ -309,7 +309,8 @@ function validateAnnouncementContent(c: unknown): asserts c is AnnouncementConte
   o.outcomes.forEach((x, i) => str(x, `outcomes[${i}]`));
   if (new Set(o.outcomes).size !== o.outcomes.length) fail('duplicate outcomes');
   const r = obj(o.rule, 'rule');
-  if (r.variable !== 'wave_height' && r.variable !== 'swell_wave_height') fail('invalid rule.variable');
+  if (r.variable !== 'wave_height' && r.variable !== 'swell_wave_height')
+    fail('invalid rule.variable');
   if (num(r.thresholdM, 'rule.thresholdM') <= 0) fail('invalid rule.thresholdM');
   if (!Array.isArray(r.models) || r.models.length < 1) fail('invalid rule.models');
   r.models.forEach((m, i) => str(m, `rule.models[${i}]`, /^[a-z0-9_]{1,40}$/));
@@ -428,7 +429,10 @@ export function verifyAttestationEvent(
     'same_oracle',
     announcementEvent.pubkey === ann.oraclePubkey && attestationEvent.pubkey === ann.oraclePubkey,
   );
-  add('linked', getTag(attestationEvent, 'e') === announcementEvent.id && att.eventId === ann.eventId);
+  add(
+    'linked',
+    getTag(attestationEvent, 'e') === announcementEvent.id && att.eventId === ann.eventId,
+  );
   const committedAt = announcementEvent.created_at;
   const windowStart = Date.parse(ann.window.start) / 1000;
   add(
