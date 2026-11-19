@@ -101,6 +101,33 @@ function sumSat(db: DbLike, where: SQL | undefined): number {
   return Number(r?.s ?? 0);
 }
 
+/** Live payouts planned but not yet paid: already promised, not yet out of the wallet. */
+export function outstandingSatFor(db: DbLike, wallet: PayoutRow['wallet']): number {
+  return sumSat(
+    db,
+    and(
+      eq(payouts.replay, false),
+      eq(payouts.wallet, wallet),
+      inArray(payouts.status, ['pending', 'paying']),
+    ),
+  );
+}
+
+/** Live payouts committed today (UTC), failed ones excepted: what counts against the daily cap. */
+export function paidTodaySatFor(db: DbLike, wallet: PayoutRow['wallet'], now: Date): number {
+  const today = isoDate(now);
+  return sumSat(
+    db,
+    and(
+      eq(payouts.replay, false),
+      eq(payouts.wallet, wallet),
+      ne(payouts.status, 'failed'),
+      gte(payouts.createdAt, `${today}T00:00:00Z`),
+      lt(payouts.createdAt, `${addDays(today, 1)}T00:00:00Z`),
+    ),
+  );
+}
+
 function summarize(report: VerificationReport) {
   return {
     ok: report.ok,
@@ -187,22 +214,8 @@ export async function planPayoutRun(ctx: PayoutCtx, attestationId: string): Prom
       const again = getPayoutRun(tx, attestationId);
       if (again) return again;
       // A replay wallet is new for each run: nothing outstanding, nothing paid today.
-      const live = and(eq(payouts.replay, false), eq(payouts.wallet, kind));
-      const outstandingSat = replay
-        ? 0
-        : sumSat(tx, and(live, inArray(payouts.status, ['pending', 'paying'])));
-      const today = isoDate(now);
-      const paidTodaySat = replay
-        ? 0
-        : sumSat(
-            tx,
-            and(
-              live,
-              ne(payouts.status, 'failed'),
-              gte(payouts.createdAt, `${today}T00:00:00Z`),
-              lt(payouts.createdAt, `${addDays(today, 1)}T00:00:00Z`),
-            ),
-          );
+      const outstandingSat = replay ? 0 : outstandingSatFor(tx, kind);
+      const paidTodaySat = replay ? 0 : paidTodaySatFor(tx, kind, now);
       const plan = planPayouts({
         policies: covered.map((p) => ({ policyId: p.id, payoutFcfa: p.payoutFcfa })),
         xofPerBtc: price.xofPerBtc,

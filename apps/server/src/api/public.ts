@@ -10,7 +10,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { z } from 'zod';
 import { cmToM } from '../db/index.js';
-import { attestations, forecasts, payouts, sites } from '../db/schema.js';
+import { attestations, forecasts, payoutRuns, payouts, sites } from '../db/schema.js';
 import { errorMessage } from '../lib/log.js';
 import { isoDate, isoSeconds } from '../lib/time.js';
 import {
@@ -197,6 +197,7 @@ export function registerPublicRoutes(app: FastifyInstance, s: Services): void {
             paymentHash: payouts.paymentHash,
             preimage: payouts.preimage,
             receiptJson: payouts.receiptJson,
+            wallet: payouts.wallet,
             createdAt: payouts.createdAt,
           })
           .from(payouts)
@@ -237,8 +238,19 @@ export function registerPublicRoutes(app: FastifyInstance, s: Services): void {
         error: f.error,
         rawUrl: f.status === 'ok' ? rawBase + f.model : null,
       })),
+      payoutRun: (() => {
+        const r = db.select().from(payoutRuns).where(eq(payoutRuns.attestationId, eventId)).get();
+        if (!r) return null;
+        const { eventJson, publishResult: _pr, verification: _v, ...rest } = r;
+        return {
+          ...rest,
+          simulated: r.wallet === 'fake',
+          event: eventJson ? (JSON.parse(eventJson) as NostrEvent) : null,
+        };
+      })(),
       payouts: payoutRows.map(({ receiptJson, ...rest }) => ({
         ...rest,
+        simulated: rest.wallet === 'fake',
         receipt: receiptJson ? (JSON.parse(receiptJson) as NostrEvent) : null,
       })),
     };

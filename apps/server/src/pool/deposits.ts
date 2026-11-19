@@ -124,8 +124,9 @@ export async function createDeposit(ctx: MoneyCtx, input: CreateDepositInput): P
     .get();
 }
 
-function weeklyPremiumFor(ctx: MoneyCtx, tx: DbLike, site: string): number {
-  const s = tx.select().from(sites).where(eq(sites.id, site)).get();
+/** Weekly premium (FCFA) at a site's current threshold, from the backtest. */
+export function weeklyPremiumFor(ctx: MoneyCtx, db: DbLike, site: string): number {
+  const s = db.select().from(sites).where(eq(sites.id, site)).get();
   if (!s) throw new DepositError('invalid', 'unknown site');
   return ctx.pricing.weeklyPremiumFcfa(site, cmToM(s.thresholdCm), ctx.settings());
 }
