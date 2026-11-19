@@ -123,6 +123,27 @@ describe('money API', () => {
     expect(pool.coverage.ratio).toBeCloseTo(inv.amountSat / (5262 * 7), 2);
   });
 
+  it('lists only active demo crews for sponsors, by pseudonym and site', async () => {
+    const s = await setup();
+    const demo = enrolCrew(s.db, s.services.piiKey, {
+      site: 'joal',
+      lnAddress: 'j1@demo.ndox.invalid',
+      demo: true,
+    });
+    enrolCrew(s.db, s.services.piiKey, {
+      site: 'kayar',
+      lnAddress: 'real@example.com',
+      phone: '+221770000000',
+      demo: false,
+    });
+    const res = await s.app.inject('/api/sponsor/crews');
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ items: [{ pseudonym: demo.pseudonym, site: 'joal' }] });
+    expect(res.body).not.toContain('example.com');
+    // no zap address is advertised next to a simulated wallet
+    expect((await s.app.inject('/api/meta')).json()).toMatchObject({ poolLightningAddress: null });
+  });
+
   it('rejects bad sponsor requests without detail, and rate-limits invoices', async () => {
     const s = await setup();
     const bad = async (payload: object) =>

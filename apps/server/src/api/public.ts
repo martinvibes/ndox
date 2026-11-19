@@ -80,6 +80,9 @@ export function registerPublicRoutes(app: FastifyInstance, s: Services): void {
       nostrPublish: config.nostrPublish,
       network: config.network,
       walletMode: config.walletMode,
+      /** lud16 of the pool's Nostr profile; zaps count only with a real wallet. */
+      poolLightningAddress:
+        config.walletMode === 'nwc' ? (config.poolLightningAddress ?? null) : null,
       schedule: SCHEDULE,
       window: { start: '06:00', end: '18:00', timezone: 'UTC' },
     };

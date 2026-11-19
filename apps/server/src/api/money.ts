@@ -126,6 +126,21 @@ export function registerMoneyRoutes(app: FastifyInstance, s: Services): void {
     };
   };
 
+  // Demo crews a sponsor can pick on /soutenir. Only demo crews are listed: a real crew's
+  // pseudonym is shared by the crew itself, never published by Ndox.
+  app.get('/api/sponsor/crews', async (_req, reply) => {
+    noStore(reply);
+    return {
+      items: db
+        .select({ pseudonym: crews.pseudonym, site: crews.site })
+        .from(crews)
+        .where(and(eq(crews.demo, true), eq(crews.active, true)))
+        .orderBy(crews.site, crews.pseudonym)
+        .limit(200)
+        .all(),
+    };
+  });
+
   const sponsorDeposit = (paymentHash: string) =>
     db
       .select()
