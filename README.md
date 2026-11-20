@@ -5,7 +5,7 @@
 <p align="center"><b>Quand la mer dit non, Ndox paie.</b><br><i>When the sea says no, Ndox pays.</i></p>
 
 <p align="center">
-  <a href="#video">Video</a> ·
+  <a href="https://youtu.be/2oq-DM4qZgg">Video</a> ·
   <a href="https://ndox-production.up.railway.app">Live app</a> ·
   <a href="#how-it-works">How it works</a> ·
   <a href="#run-it">Run it</a> ·
@@ -18,7 +18,7 @@ Ndox is preventive solidarity for Senegal's artisanal fishers. When two independ
 
 <a id="video"></a>
 
-<p align="center"><a href="docs/assets/video-thumbnail.png"><img src="docs/assets/video-thumbnail.png" width="720" alt="Watch the Ndox demo"></a><br><sub>▶ Demo video — link coming</sub></p>
+<p align="center"><a href="https://youtu.be/2oq-DM4qZgg"><img src="docs/assets/video-thumbnail.png" width="720" alt="Watch the Ndox demo on YouTube"></a><br><sub>▶ <a href="https://youtu.be/2oq-DM4qZgg">Watch the 75-second demo on YouTube</a></sub></p>
 
 <p align="center"><img src="docs/screenshots/council-replay.png" width="820" alt="Council replay of 27 February 2026"><br><sub>The council replays 27 Feb 2026 at Kayar: both models above 2.5 m, "danger" signed at 05:15, 10 crews paid, SMS sent.</sub></p>
 
