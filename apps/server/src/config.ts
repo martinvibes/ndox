@@ -69,6 +69,7 @@ const EnvSchema = z.object({
   HEALTHCHECK_URL: z.url().optional(),
   SCHEDULER: bool.default(true),
   TRUST_PROXY: z.coerce.number().int().min(0).max(5).default(0),
+  BACKUP_KEEP: z.coerce.number().int().min(1).max(60).default(7),
   WEB_DIST_DIR: z.string().min(1).optional(),
   SEED_DIR: z.string().min(1).optional(),
   MIGRATIONS_DIR: z.string().min(1).optional(),
@@ -142,6 +143,8 @@ export interface Config {
    * X-Forwarded-For entry that the outermost trusted proxy added, never from what the client sent.
    */
   trustProxy: number;
+  /** Daily SQLite backups kept in <database dir>/backups. */
+  backupKeep: number;
   webDir: string;
   seedDir: string;
   migrationsDir: string;
@@ -245,6 +248,7 @@ export function loadConfig(
     healthcheckUrl: e.HEALTHCHECK_URL,
     scheduler: e.SCHEDULER,
     trustProxy: e.TRUST_PROXY,
+    backupKeep: e.BACKUP_KEEP,
     webDir: e.WEB_DIST_DIR ? resolve(e.WEB_DIST_DIR) : paths.webDir,
     seedDir: e.SEED_DIR ? resolve(e.SEED_DIR) : paths.seedDir,
     migrationsDir: e.MIGRATIONS_DIR ? resolve(e.MIGRATIONS_DIR) : paths.migrationsDir,

@@ -10,6 +10,7 @@ import { registerAiRoutes } from './api/ai.js';
 import { registerCrewRoutes } from './api/crew.js';
 import { registerMoneyRoutes } from './api/money.js';
 import { registerPublicRoutes } from './api/public.js';
+import { registerSecurityHeaders } from './lib/security.js';
 import type { Services } from './services.js';
 
 export interface AppOptions {
@@ -42,6 +43,10 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
     threshold: 1024,
     encodings: ['br', 'gzip'],
     brotliOptions: { params: { [zlib.BROTLI_PARAM_QUALITY]: 5 } },
+  });
+
+  registerSecurityHeaders(app, {
+    https: opts.services?.config.publicBaseUrl.startsWith('https://') ?? false,
   });
 
   app.get('/healthz', async () => ({ ok: true }));

@@ -1,9 +1,10 @@
 /** Wires configuration, database and adapters into the objects the API, scheduler and CLI use. */
 import { getPublicKey } from '@ndox/oracle';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import type { BulletinCtx } from './ai/bulletin.js';
 import { createTextModel, type TextModel } from './ai/model.js';
 import type { Config } from './config.js';
+import type { OpsCtx } from './ops/maintenance.js';
 import type { Db } from './db/index.js';
 import { deriveKey } from './lib/box.js';
 import type { Log } from './lib/log.js';
@@ -58,6 +59,8 @@ export interface Services {
   textModel: TextModel | null;
   /** Context of the daily sea bulletin job. */
   bulletin: BulletinCtx;
+  /** Daily backup and health pings. */
+  ops: OpsCtx;
   /** What a replay needs to pay demo crews from a simulated wallet. */
   replayPayouts: ReplayPayoutOptions;
   piiKey: Buffer;
@@ -220,6 +223,14 @@ export function createServices(
     notify,
     textModel,
     bulletin,
+    ops: {
+      db,
+      backupDir: db.$client.memory ? null : join(dirname(db.$client.name), 'backups'),
+      keep: config.backupKeep,
+      clock,
+      log,
+      healthcheckUrl: config.healthcheckUrl,
+    },
     replayPayouts: { fakeSeed, demoOraclePubkey: getPublicKey(config.secrets.demoOracle) },
     piiKey,
     policyDefaults: defaults,

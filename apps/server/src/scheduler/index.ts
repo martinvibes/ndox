@@ -3,6 +3,7 @@ import { maybeBulletin, type BulletinCtx } from '../ai/bulletin.js';
 import { errorMessage, type Log } from '../lib/log.js';
 import type { OracleCtx } from '../oracle/jobs.js';
 import { notifyPayouts, type NotifyCtx } from '../notify/jobs.js';
+import { backupIfDue, healthPing, type OpsCtx } from '../ops/maintenance.js';
 import { runPayoutJobs, type PayoutCtx } from '../payouts/engine.js';
 import { tick } from './tick.js';
 
@@ -15,19 +16,28 @@ export interface Scheduler {
 /**
  * Every minute (UTC) and once at startup, never overlapping: the oracle's daily loop, then the
  * money jobs (expire policies, check deposits, plan and pay payouts, publish events), then the
- * SMS to the crews just paid, then the daily sea bulletin.
+ * SMS to the crews just paid, then the daily sea bulletin, the daily backup, and a health ping
+ * (failure if any job threw).
  */
 export function startScheduler(
-  s: { live: OracleCtx; money: PayoutCtx; notify: NotifyCtx; bulletin: BulletinCtx },
+  s: {
+    live: OracleCtx;
+    money: PayoutCtx;
+    notify: NotifyCtx;
+    bulletin: BulletinCtx;
+    ops?: OpsCtx;
+  },
   log: Log,
 ): Scheduler {
   let running: Promise<void> | null = null;
   const once = async () => {
+    const failed: string[] = [];
     try {
       const r = await tick(s.live);
       for (const a of r.actions)
         log.info(`job ${a.job} ${a.status}`, { site: a.site, date: a.date, detail: a.detail });
     } catch (err) {
+      failed.push('oracle');
       log.error('scheduler tick failed', { error: errorMessage(err) });
     }
     try {
@@ -43,18 +53,30 @@ export function startScheduler(
           published: m.published,
         });
     } catch (err) {
+      failed.push('money');
       log.error('money jobs failed', { error: errorMessage(err) });
     }
     try {
       const n = await notifyPayouts(s.notify);
       if (n.sent || n.failed) log.info('notify', { ...n });
     } catch (err) {
+      failed.push('notify');
       log.error('notify failed', { error: errorMessage(err) });
     }
     try {
       await maybeBulletin(s.bulletin);
     } catch (err) {
+      failed.push('bulletin');
       log.error('bulletin failed', { error: errorMessage(err) });
+    }
+    if (s.ops) {
+      try {
+        await backupIfDue(s.ops);
+      } catch (err) {
+        failed.push('backup');
+        log.error('backup failed', { error: errorMessage(err) });
+      }
+      await healthPing(s.ops, failed.length === 0, { failed: failed.join(',') || 'none' });
     }
   };
   const runNow = (): Promise<void> => {
