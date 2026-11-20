@@ -68,6 +68,7 @@ const EnvSchema = z.object({
   AT_CALLBACK_TOKEN: z.string().min(16).optional(),
   HEALTHCHECK_URL: z.url().optional(),
   SCHEDULER: bool.default(true),
+  TRUST_PROXY: z.coerce.number().int().min(0).max(5).default(0),
   WEB_DIST_DIR: z.string().min(1).optional(),
   SEED_DIR: z.string().min(1).optional(),
   MIGRATIONS_DIR: z.string().min(1).optional(),
@@ -136,6 +137,11 @@ export interface Config {
   };
   healthcheckUrl: string | undefined;
   scheduler: boolean;
+  /**
+   * Reverse proxies in front of the server (Railway: 1). The client address is then read from the
+   * X-Forwarded-For entry that the outermost trusted proxy added, never from what the client sent.
+   */
+  trustProxy: number;
   webDir: string;
   seedDir: string;
   migrationsDir: string;
@@ -238,6 +244,7 @@ export function loadConfig(
     },
     healthcheckUrl: e.HEALTHCHECK_URL,
     scheduler: e.SCHEDULER,
+    trustProxy: e.TRUST_PROXY,
     webDir: e.WEB_DIST_DIR ? resolve(e.WEB_DIST_DIR) : paths.webDir,
     seedDir: e.SEED_DIR ? resolve(e.SEED_DIR) : paths.seedDir,
     migrationsDir: e.MIGRATIONS_DIR ? resolve(e.MIGRATIONS_DIR) : paths.migrationsDir,

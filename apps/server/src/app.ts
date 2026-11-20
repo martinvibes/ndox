@@ -20,9 +20,12 @@ export interface AppOptions {
 }
 
 export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> {
+  // a hop count, never `true`: with `true` any client could pick its own address (rate limits)
+  const hops = opts.services?.config.trustProxy ?? 0;
+  const trustProxy = hops > 0 ? (_addr: string, hop: number) => hop < hops : false;
   const app: FastifyInstance = opts.logger
-    ? Fastify({ loggerInstance: opts.logger as FastifyBaseLogger })
-    : Fastify({ logger: false });
+    ? Fastify({ loggerInstance: opts.logger as FastifyBaseLogger, trustProxy })
+    : Fastify({ logger: false, trustProxy });
 
   app.setErrorHandler((err: { statusCode?: number; message?: string }, req, reply) => {
     const status =
