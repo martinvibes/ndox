@@ -8,6 +8,7 @@ import { and, desc, eq } from 'drizzle-orm';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { collectAlerts } from '../admin/alerts.js';
+import { seedDemo, type SeedDemoResult } from '../admin/seed.js';
 import { cmToM, mToCm } from '../db/index.js';
 import { crews, deposits, payouts, policies, sites } from '../db/schema.js';
 import { errorMessage } from '../lib/log.js';
@@ -73,6 +74,14 @@ const DepositBody = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('levy'), amountFcfa: z.number().int() }).strict(),
   z.object({ kind: z.literal('premium'), policyId: ID('p') }).strict(),
 ]);
+const SeedDemoBody = z
+  .object({
+    perSite: z.number().int().min(1).max(50).optional(),
+    weeks: z.number().int().min(1).max(52).optional(),
+    poolFcfa: z.number().int().min(0).max(10_000_000).optional(),
+  })
+  .strict();
+
 const ReplayBody = z
   .object({ site: SiteId, date: DateStr, pay: z.boolean().default(true) })
   .strict();
@@ -121,6 +130,12 @@ export function registerAdminRoutes(app: FastifyInstance, s: Services): void {
       ? derivedAdminPassword(config.secrets.session)
       : undefined;
   let replayRunning = false;
+  let seedJob: {
+    running: boolean;
+    startedAt: string | null;
+    result: SeedDemoResult | null;
+    error: string | null;
+  } = { running: false, startedAt: null, result: null, error: null };
 
   async function passwordOk(password: string): Promise<boolean> {
     if (config.adminPasswordHash) {
@@ -495,6 +510,28 @@ export function registerAdminRoutes(app: FastifyInstance, s: Services): void {
           replayRunning = false;
         }
       });
+
+      // ── demo crews ───────────────────────────────────────────────────────────────────────
+      // Same as `cli seed-demo`, for a deployment without a shell. Runs in the background: on a
+      // test network it creates faucet wallets and pays premiums over Lightning (a minute or two).
+      admin.post('/seed-demo', async (req, reply) => {
+        const b = SeedDemoBody.safeParse(req.body ?? {});
+        if (!b.success) return bad(reply);
+        if (seedJob.running) return reply.code(409).send({ error: 'seed_running' });
+        seedJob = { running: true, startedAt: isoSeconds(new Date()), result: null, error: null };
+        void seedDemo(s, b.data)
+          .then((r) => {
+            seedJob = { ...seedJob, running: false, result: r };
+            s.log.info('admin: seed-demo', { ...r });
+          })
+          .catch((err: unknown) => {
+            seedJob = { ...seedJob, running: false, error: errorMessage(err).slice(0, 200) };
+            s.log.error('seed-demo failed', { error: seedJob.error });
+          });
+        return reply.code(202).send(seedJob);
+      });
+
+      admin.get('/seed-demo', async () => seedJob);
 
       // ── settings ─────────────────────────────────────────────────────────────────────────
       const settingsView = () => ({

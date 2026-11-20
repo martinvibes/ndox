@@ -325,6 +325,8 @@ export const notifications = sqliteTable(
       .default('pending'),
     attempts: integer('attempts').notNull().default(0),
     providerId: text('provider_id'),
+    /** Last delivery report from the operator (e.g. "Success", "Buffered"). */
+    deliveryStatus: text('delivery_status'),
     error: text('error'),
     createdAt: createdAt(),
     sentAt: text('sent_at'),
@@ -337,6 +339,23 @@ export const notifications = sqliteTable(
     ),
   ],
 );
+
+/**
+ * Daily sea bulletin (docs/BRIEF.md §11): a short French note written from the day's attestations,
+ * by the model when an API key is set, else by a template. Posted as a Nostr kind 1 note signed
+ * by the pool key. Never read by the payout engine.
+ */
+export const bulletins = sqliteTable('bulletins', {
+  date: text('date').primaryKey(),
+  text: text('text').notNull(),
+  source: text('source', { enum: ['ai', 'template'] }).notNull(),
+  model: text('model'),
+  eventJson: text('event_json'),
+  nostrId: text('nostr_id'),
+  publishedAt: text('published_at'),
+  publishResult: text('publish_result', { mode: 'json' }),
+  createdAt: createdAt(),
+});
 
 export const jobRuns = sqliteTable(
   'job_runs',

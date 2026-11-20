@@ -135,7 +135,7 @@ export function listCrews(db: Db, piiKey: Buffer): CrewView[] {
     .map((r) => crewView(r, piiKey));
 }
 
-function crewSecretsFromRow(
+export function crewSecretsFromRow(
   row: CrewRow,
   piiKey: Buffer,
 ): { lnAddress: string | null; phone: string | null } {

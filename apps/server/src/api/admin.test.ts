@@ -459,6 +459,27 @@ describe('seedDemo', () => {
       levySat: 0,
     });
   });
+  it('seeds demo crews from the dashboard in the background, one run at a time', async () => {
+    const { app } = await setup();
+    const api = client(app, await login(app));
+    expect((await api.post('/api/admin/seed-demo', { perSite: 99 })).statusCode).toBe(400);
+    const started = await api.post('/api/admin/seed-demo', { perSite: 1, poolFcfa: 0 });
+    expect(started.statusCode).toBe(202);
+    expect(started.json()).toMatchObject({ running: true, error: null });
+    let job = (await api.get('/api/admin/seed-demo')).json();
+    for (let i = 0; job.running && i < 50; i++) {
+      await new Promise((r) => setTimeout(r, 10));
+      job = (await api.get('/api/admin/seed-demo')).json();
+    }
+    expect(job).toMatchObject({
+      running: false,
+      error: null,
+      result: { enrolled: 4, covered: 4, simulated: true },
+    });
+    const crewsRes = (await api.get('/api/admin/crews')).json<{ items: { demo: boolean }[] }>();
+    expect(crewsRes.items.filter((c) => c.demo)).toHaveLength(4);
+  });
+
   it('on a test network, gives demo crews faucet wallets and pays premiums over Lightning', async () => {
     const addresses: string[] = [];
     const faucet: TestFaucet = {
