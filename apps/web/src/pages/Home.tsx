@@ -1,4 +1,6 @@
-import { HandCoins, ShieldCheck } from 'lucide-react';
+import { HandCoins, ShieldCheck, Smartphone } from 'lucide-react';
+import { RulesExplainer } from '../components/RulesExplainer';
+import { SeaBulletin } from '../components/SeaBulletin';
 import { StatusCard } from '../components/StatusCard';
 import { ErrorState, ICON, LinkButton, MoneyBadge, Skeleton, StatTile } from '../components/ui';
 import { useI18n } from '../i18n';
@@ -56,6 +58,8 @@ export default function Home() {
         </div>
       </section>
 
+      <SeaBulletin />
+
       <PoolSection pool={pool.data} />
 
       <section aria-labelledby="how" className="mt-14">
@@ -86,6 +90,8 @@ export default function Home() {
         </ol>
       </section>
 
+      <RulesExplainer />
+
       <div className="mt-10 flex flex-col gap-3 sm:flex-row">
         <LinkButton href="/soutenir">
           <HandCoins {...ICON} />
@@ -94,6 +100,10 @@ export default function Home() {
         <LinkButton href="/verifier" variant="secondary">
           <ShieldCheck {...ICON} />
           {t.home.ctaVerify}
+        </LinkButton>
+        <LinkButton href="/e" variant="ghost" native>
+          <Smartphone {...ICON} />
+          {t.home.ctaCrew}
         </LinkButton>
       </div>
     </>

@@ -8,10 +8,12 @@
  *  - only demo crews covered right now (real time) are paid, and nothing is published.
  * Payouts happen on the replay's simulated clock, one minute after the attestation.
  */
+import { getSite } from '@ndox/shared';
 import { and, eq } from 'drizzle-orm';
 import { crews, payouts, policies } from '../db/schema.js';
 import { errorMessage } from '../lib/log.js';
 import { isoSeconds } from '../lib/time.js';
+import { payoutSms } from '../notify/sms.js';
 import type { ReplayResult } from '../oracle/replay.js';
 import { FakeLnAddressResolver, FakeWallet } from '../wallet/fake.js';
 import {
@@ -50,6 +52,8 @@ export interface ReplayPayoutSummary {
   paid: number;
   failed: number;
   payouts: ReplayPayout[];
+  /** The SMS the first paid crew would get (a replay never sends it), or null if nobody was paid. */
+  sms: string | null;
 }
 
 export interface ReplayPayoutOptions {
@@ -61,7 +65,7 @@ export interface ReplayPayoutOptions {
 
 export async function payReplay(
   live: PayoutCtx,
-  result: Pick<ReplayResult, 'runId' | 'eventId' | 'steps'>,
+  result: Pick<ReplayResult, 'runId' | 'eventId' | 'steps' | 'site' | 'decisiveM'>,
   o: ReplayPayoutOptions,
 ): Promise<ReplayPayoutSummary> {
   const attestedAt = result.steps.find((s) => s.step === 'attest')?.at;
@@ -99,7 +103,7 @@ export async function payReplay(
   await publishPayoutEvents(ctx); // signs receipts; replays are never published
 
   const rows = live.db
-    .select({ p: payouts, pseudonym: crews.pseudonym })
+    .select({ p: payouts, pseudonym: crews.pseudonym, code: crews.statusCode })
     .from(payouts)
     .innerJoin(policies, eq(policies.id, payouts.policyId))
     .innerJoin(crews, eq(crews.id, policies.crewId))
@@ -107,6 +111,7 @@ export async function payReplay(
     .orderBy(crews.pseudonym)
     .all();
   const paid = rows.filter((r) => r.p.status === 'paid');
+  const first = paid[0];
   return {
     runId: result.runId,
     eventId: result.eventId,
@@ -131,5 +136,14 @@ export async function payReplay(
       status: p.status,
       paymentHash: p.paymentHash,
     })),
+    sms: first
+      ? payoutSms({
+          siteName: getSite(result.site)?.name ?? result.site,
+          waveM: result.decisiveM,
+          amountFcfa: first.p.amountFcfa,
+          code: first.code,
+          test: true,
+        })
+      : null,
   };
 }

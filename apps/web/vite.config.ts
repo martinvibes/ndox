@@ -61,7 +61,8 @@ export default defineConfig({
     proxy: {
       '/api': 'http://localhost:8080',
       '/healthz': 'http://localhost:8080',
-      '/e/': 'http://localhost:8080',
+      // the crew status page is served by the server (/e, /e?code=, /e/CODE)
+      '^/e(/|\\?|$)': 'http://localhost:8080',
     },
   },
   build: {

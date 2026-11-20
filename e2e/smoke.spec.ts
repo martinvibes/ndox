@@ -40,4 +40,7 @@ test('the council replays an alert day and pays the demo crews', async ({ page }
   await expect(page.getByTestId('replay-outcome')).toHaveText(/danger/i, { timeout: 20_000 });
   await expect(page.getByText('Signature vérifiée')).toBeVisible();
   await expect(page.getByTestId('replay-total')).toContainText('FCFA', { timeout: 10_000 });
+  await expect(page.getByTestId('replay-sms')).toContainText(/^NDOX .+ Code: [A-Z0-9]{6}$/, {
+    timeout: 10_000,
+  });
 });

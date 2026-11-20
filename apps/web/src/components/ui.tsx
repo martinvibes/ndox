@@ -34,13 +34,22 @@ export function LinkButton({
   href,
   variant = 'primary',
   className = '',
+  native = false,
   children,
 }: {
   href: string;
   variant?: ButtonVariant;
   className?: string;
+  /** A page served by the server, not the app: a full navigation. */
+  native?: boolean;
   children: ReactNode;
 }) {
+  if (native)
+    return (
+      <a href={href} className={`${BTN[variant]} ${className}`}>
+        {children}
+      </a>
+    );
   return (
     <Link href={href} className={`${BTN[variant]} ${className}`}>
       {children}

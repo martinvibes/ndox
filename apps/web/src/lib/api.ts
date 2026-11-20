@@ -474,5 +474,30 @@ export interface ReplayResult {
       status: string;
       paymentHash: string | null;
     }[];
+    /** The SMS a paid crew would get (never sent during a replay). */
+    sms: string | null;
   } | null;
+}
+
+export interface BulletinResponse {
+  bulletin: {
+    date: string;
+    text: string;
+    source: 'ai' | 'template';
+    model: string | null;
+    nostrId: string | null;
+    publishedAt: string | null;
+  } | null;
+}
+
+export interface RulesResponse {
+  rules: Record<string, unknown>;
+  explainer: { provider: string; model: string } | null;
+}
+
+export interface Explanation {
+  answer: string;
+  known: boolean;
+  model: string;
+  cached: boolean;
 }

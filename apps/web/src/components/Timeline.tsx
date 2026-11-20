@@ -77,7 +77,7 @@ const OUTCOME_TEXT = {
 
 /**
  * The replay "money shot" (docs/BRIEF.md §10.4): commitment the evening before, the swell read
- * at dawn, the signed result, the payouts, and the SMS step that is not wired yet.
+ * at dawn, the signed result, the payouts, and the SMS each paid crew gets (not sent in a replay).
  */
 export function Timeline({ result, thresholdM }: { result: ReplayResult; thresholdM: number }) {
   const { t, lang } = useI18n();
@@ -199,12 +199,26 @@ export function Timeline({ result, thresholdM }: { result: ReplayResult; thresho
     },
     { time: p ? fmtTime(p.at) : '', body: payoutsBody() },
     {
-      time: '',
-      muted: true,
-      body: (
+      time: p?.sms ? fmtTime(p.at) : '',
+      muted: !p?.sms,
+      body: p?.sms ? (
+        <>
+          <p className="flex flex-wrap items-center gap-2 text-muted">
+            {t.council.replay.steps.smsPreview}
+            <Badge kind="simulated" />
+          </p>
+          <p
+            className="mt-2 flex max-w-sm gap-2 rounded-card border border-line bg-surface p-3 text-sm text-ink"
+            data-testid="replay-sms"
+          >
+            <MessageSquareText {...ICON} className="shrink-0 text-ocean" />
+            {p.sms}
+          </p>
+        </>
+      ) : (
         <p className="flex items-center gap-2 text-muted">
           <MessageSquareText {...ICON} />
-          {t.council.replay.steps.smsBody}
+          {t.council.replay.steps.smsNone}
         </p>
       ),
     },

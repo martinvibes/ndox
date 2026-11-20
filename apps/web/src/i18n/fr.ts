@@ -100,6 +100,20 @@ const fr = {
     ],
     ctaSponsor: 'Soutenir un équipage',
     ctaVerify: 'Vérifier les preuves',
+    ctaCrew: 'Mon équipage',
+    bulletinTitle: (date: string) => `Bulletin de la mer, ${date}`,
+    bulletinAi: (model: string) => `Rédigé par IA (${model}) à partir des attestations signées`,
+    bulletinTemplate: 'Rédigé automatiquement à partir des attestations signées (sans IA)',
+    bulletinNostr: 'Voir la note signée sur Nostr',
+    explainTitle: 'Une question sur les règles ?',
+    explainLead:
+      'Les réponses viennent uniquement des règles appliquées par Ndox. Si elles ne répondent pas, la réponse est « Je ne sais pas. ».',
+    explainPlaceholder: 'Ex. : combien reçoit un équipage un jour de danger ?',
+    explainAsk: 'Demander',
+    explainAsking: 'Réponse en cours…',
+    explainBy: (model: string) => `Réponse générée par IA (${model}) à partir des règles publiées.`,
+    explainError: 'La réponse n’a pas pu être obtenue. Réessayez dans un instant.',
+    explainRateLimited: 'Trop de questions d’affilée. Réessayez dans une minute.',
   },
   verify: {
     title: 'Vérifier les preuves',
@@ -391,7 +405,9 @@ const fr = {
         payoutsNobody: 'Aucun équipage de démonstration couvert.',
         shortfall: (s: string) => `Réduit de ${s} (plafond ou solde).`,
         sms: 'SMS aux équipages',
-        smsBody: 'Les SMS arrivent dans une prochaine version.',
+        smsPreview:
+          'Le SMS que reçoit chaque équipage payé (pendant une rediffusion, il n’est pas envoyé) :',
+        smsNone: 'Personne n’a été payé : aucun SMS.',
       },
       openVerify: 'Vérifier cette attestation',
       errors: {

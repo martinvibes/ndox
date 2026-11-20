@@ -628,6 +628,10 @@ describe('replay payouts', () => {
     expect(
       summary.payouts.every((p) => p.status === 'paid' && /^Pirogue K-0[12]$/.test(p.pseudonym)),
     ).toBe(true);
+    // the SMS a paid crew would get, shown in the replay (never sent)
+    expect(summary.sms).toMatch(
+      /^NDOX Kayar: mer dangereuse aujourd'hui \(houle \d,\d m\)\. [\d ]+ FCFA \(TEST\) envoyes\. Restez a terre\. Code: [A-Z0-9]{6}$/,
+    );
 
     expect(await s.wallet.getBalanceSat()).toBe(poolBefore); // live pool untouched
     const rows = payoutRows(s.db, result.eventId);
