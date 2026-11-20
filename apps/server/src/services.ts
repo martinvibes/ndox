@@ -1,10 +1,14 @@
 /** Wires configuration, database and adapters into the objects the API, scheduler and CLI use. */
 import { getPublicKey } from '@ndox/oracle';
 import { join } from 'node:path';
+import type { BulletinCtx } from './ai/bulletin.js';
+import { createTextModel, type TextModel } from './ai/model.js';
 import type { Config } from './config.js';
 import type { Db } from './db/index.js';
 import { deriveKey } from './lib/box.js';
 import type { Log } from './lib/log.js';
+import type { NotifyCtx } from './notify/jobs.js';
+import { AfricasTalkingSms, ConsoleNotifier, type Notifier } from './notify/sms.js';
 import { systemClock, type Clock } from './lib/time.js';
 import { PriceService } from './money/price.js';
 import { RelayPublisher, type Publisher } from './nostr/publisher.js';
@@ -46,6 +50,14 @@ export interface Services {
   faucet: TestFaucet | null;
   /** Live money context: deposits, policies, payouts (POOL_SECRET). */
   money: PayoutCtx;
+  /** SMS to crews: console (default) or Africa's Talking when AT_API_KEY is set. */
+  notifier: Notifier;
+  /** Context of the `notify` job (SMS after each paid payout). */
+  notify: NotifyCtx;
+  /** Anthropic, else OpenAI, else null (bulletin and explainer then use templates / rules). */
+  textModel: TextModel | null;
+  /** Context of the daily sea bulletin job. */
+  bulletin: BulletinCtx;
   /** What a replay needs to pay demo crews from a simulated wallet. */
   replayPayouts: ReplayPayoutOptions;
   piiKey: Buffer;
@@ -66,6 +78,8 @@ export interface ServiceOverrides {
   testFunds?: boolean;
   testPayer?: Wallet | null;
   faucet?: TestFaucet | null;
+  notifier?: Notifier;
+  textModel?: TextModel | null;
 }
 
 export function createServices(
@@ -167,6 +181,27 @@ export function createServices(
     testPayer: testFunds ? testPayer : null,
   };
 
+  const notifier: Notifier =
+    o.notifier ??
+    (config.africasTalking.apiKey
+      ? new AfricasTalkingSms({
+          username: config.africasTalking.username,
+          apiKey: config.africasTalking.apiKey,
+        })
+      : new ConsoleNotifier(log));
+  const notify: NotifyCtx = { db, piiKey, notifier, clock, log, testFunds };
+  const textModel = o.textModel !== undefined ? o.textModel : createTextModel(config);
+  const bulletin: BulletinCtx = {
+    db,
+    clock,
+    log,
+    model: textModel,
+    publisher,
+    poolSecret: config.secrets.pool,
+    publicBaseUrl: config.publicBaseUrl,
+    testFunds,
+  };
+
   return {
     config,
     db,
@@ -181,6 +216,10 @@ export function createServices(
     wallet,
     faucet,
     money,
+    notifier,
+    notify,
+    textModel,
+    bulletin,
     replayPayouts: { fakeSeed, demoOraclePubkey: getPublicKey(config.secrets.demoOracle) },
     piiKey,
     policyDefaults: defaults,

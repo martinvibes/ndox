@@ -6,6 +6,8 @@ import { resolve } from 'node:path';
 import { constants as zlib } from 'node:zlib';
 import type { Logger } from 'pino';
 import { registerAdminRoutes } from './api/admin.js';
+import { registerAiRoutes } from './api/ai.js';
+import { registerCrewRoutes } from './api/crew.js';
 import { registerMoneyRoutes } from './api/money.js';
 import { registerPublicRoutes } from './api/public.js';
 import type { Services } from './services.js';
@@ -45,6 +47,8 @@ export async function buildApp(opts: AppOptions = {}): Promise<FastifyInstance> 
     registerPublicRoutes(app, opts.services);
     registerMoneyRoutes(app, opts.services);
     registerAdminRoutes(app, opts.services);
+    registerCrewRoutes(app, opts.services);
+    registerAiRoutes(app, opts.services);
   }
 
   const webDir =

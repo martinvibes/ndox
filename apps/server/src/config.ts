@@ -61,8 +61,11 @@ const EnvSchema = z.object({
     .optional(),
   ANTHROPIC_API_KEY: z.string().min(1).optional(),
   ANTHROPIC_MODEL: z.string().min(1).default('claude-haiku-5-5'),
+  OPENAI_API_KEY: z.string().min(1).optional(),
+  OPENAI_MODEL: z.string().min(1).default('gpt-4o-mini'),
   AT_USERNAME: z.string().min(1).default('sandbox'),
   AT_API_KEY: z.string().min(1).optional(),
+  AT_CALLBACK_TOKEN: z.string().min(16).optional(),
   HEALTHCHECK_URL: z.url().optional(),
   SCHEDULER: bool.default(true),
   WEB_DIST_DIR: z.string().min(1).optional(),
@@ -123,7 +126,14 @@ export interface Config {
   /** lud16 of the pool's Nostr profile (zaps); must be served by the pool's NWC wallet. */
   poolLightningAddress: string | undefined;
   anthropic: { apiKey: string | undefined; model: string };
-  africasTalking: { username: string; apiKey: string | undefined };
+  /** Alternative to Anthropic for the bulletin and the explainer (used only without ANTHROPIC_API_KEY). */
+  openai: { apiKey: string | undefined; model: string };
+  africasTalking: {
+    username: string;
+    apiKey: string | undefined;
+    /** Required as ?token= on the USSD and delivery-report callbacks when set. */
+    callbackToken: string | undefined;
+  };
   healthcheckUrl: string | undefined;
   scheduler: boolean;
   webDir: string;
@@ -220,7 +230,12 @@ export function loadConfig(
     adminPasswordHash: e.ADMIN_PASSWORD_HASH,
     poolLightningAddress: e.POOL_LIGHTNING_ADDRESS,
     anthropic: { apiKey: e.ANTHROPIC_API_KEY, model: e.ANTHROPIC_MODEL },
-    africasTalking: { username: e.AT_USERNAME, apiKey: e.AT_API_KEY },
+    openai: { apiKey: e.OPENAI_API_KEY, model: e.OPENAI_MODEL },
+    africasTalking: {
+      username: e.AT_USERNAME,
+      apiKey: e.AT_API_KEY,
+      callbackToken: e.AT_CALLBACK_TOKEN,
+    },
     healthcheckUrl: e.HEALTHCHECK_URL,
     scheduler: e.SCHEDULER,
     webDir: e.WEB_DIST_DIR ? resolve(e.WEB_DIST_DIR) : paths.webDir,

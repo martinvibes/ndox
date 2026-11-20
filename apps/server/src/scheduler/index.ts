@@ -1,6 +1,8 @@
 import cron from 'node-cron';
+import { maybeBulletin, type BulletinCtx } from '../ai/bulletin.js';
 import { errorMessage, type Log } from '../lib/log.js';
 import type { OracleCtx } from '../oracle/jobs.js';
+import { notifyPayouts, type NotifyCtx } from '../notify/jobs.js';
 import { runPayoutJobs, type PayoutCtx } from '../payouts/engine.js';
 import { tick } from './tick.js';
 
@@ -12,9 +14,13 @@ export interface Scheduler {
 
 /**
  * Every minute (UTC) and once at startup, never overlapping: the oracle's daily loop, then the
- * money jobs (expire policies, check deposits, plan and pay payouts, publish events).
+ * money jobs (expire policies, check deposits, plan and pay payouts, publish events), then the
+ * SMS to the crews just paid, then the daily sea bulletin.
  */
-export function startScheduler(s: { live: OracleCtx; money: PayoutCtx }, log: Log): Scheduler {
+export function startScheduler(
+  s: { live: OracleCtx; money: PayoutCtx; notify: NotifyCtx; bulletin: BulletinCtx },
+  log: Log,
+): Scheduler {
   let running: Promise<void> | null = null;
   const once = async () => {
     try {
@@ -38,6 +44,17 @@ export function startScheduler(s: { live: OracleCtx; money: PayoutCtx }, log: Lo
         });
     } catch (err) {
       log.error('money jobs failed', { error: errorMessage(err) });
+    }
+    try {
+      const n = await notifyPayouts(s.notify);
+      if (n.sent || n.failed) log.info('notify', { ...n });
+    } catch (err) {
+      log.error('notify failed', { error: errorMessage(err) });
+    }
+    try {
+      await maybeBulletin(s.bulletin);
+    } catch (err) {
+      log.error('bulletin failed', { error: errorMessage(err) });
     }
   };
   const runNow = (): Promise<void> => {
