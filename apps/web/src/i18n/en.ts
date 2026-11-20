@@ -39,11 +39,18 @@ const en: Messages = {
     demoHint: 'Demo crew, not a real fisher.',
     forecast: 'Forecast',
     forecastHint: 'Unsigned forecast, for information only.',
+    test: 'Test funds',
+    testHint: 'Real Lightning payment on a test network: these sats have no value.',
   },
   footer: {
     source: 'Source code (MIT)',
     realVsSim: 'What is real, what is simulated',
     data: 'Wave data: Open-Meteo (ECMWF, NCEP)',
+    network: {
+      simulated: 'Simulated payments: no real money',
+      test: 'Lightning test network: these sats have no value',
+      mainnet: 'Payments: Bitcoin Lightning',
+    },
   },
   home: {
     seaToday: (date) => `The sea today, ${date}`,
@@ -185,6 +192,8 @@ const en: Messages = {
     create: 'Create the payment request',
     creating: 'Creating…',
     scan: 'Scan with your Lightning wallet',
+    scanTest:
+      'Test-network invoice: pay it with the button below or a test wallet, not with real sats.',
     openWallet: 'Open in my wallet',
     copyInvoice: 'Copy the payment request',
     waiting: 'Waiting for payment…',
@@ -192,6 +201,8 @@ const en: Messages = {
     expired: 'Request expired. Create a new one.',
     simulate: 'Simulate the payment',
     simulateHint: 'Demo: no real money moves.',
+    testPay: 'Pay with the test wallet',
+    testPayHint: 'A real Lightning payment, with sats of no value.',
     thanksTitle: 'Thank you!',
     thanksPool: (a) => `${a} joined the common pool.`,
     thanksCrew: (a, crew) => `${a} cover ${crew}.`,
@@ -204,6 +215,7 @@ const en: Messages = {
     errors: {
       rate_limited: 'Too many requests. Try again in a few minutes.',
       wallet_unavailable: 'The pool’s wallet is not answering. Try again later.',
+      test_payment_failed: 'The test wallet could not pay. Try again in a moment.',
       unknown_crew: 'This crew is no longer enrolled.',
       generic: 'The request did not go through. Try again.',
     },

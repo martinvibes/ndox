@@ -330,6 +330,29 @@ describe('payout engine — plan', () => {
     expect(await processPayout(s.ctx, payoutRows(s.db, eventId)[0]!.id)).toBe('skipped');
   });
 
+  it('a test-funds wallet (NWC on a test network) pays demo policies too', async () => {
+    const s = setup();
+    await fund(s, 100_000);
+    const demo = await coverCrew(s, 1); // demo
+    const real = await coverCrew(s, 2, 'kayar', false);
+    const eventId = await attestDay(s);
+    const testWallet: Wallet = {
+      kind: 'nwc',
+      simulated: false,
+      makeInvoice: (a, m, e) => s.pool.makeInvoice(a, m, e),
+      payInvoice: (i) => s.pool.payInvoice(i),
+      lookupInvoice: (h) => s.pool.lookupInvoice(h),
+      getBalanceSat: () => s.pool.getBalanceSat(),
+    };
+    const run = await planPayoutRun({ ...s.ctx, wallet: testWallet, testFunds: true }, eventId);
+    expect(run).toMatchObject({ status: 'planned', policies: 2, wallet: 'nwc' });
+    expect(
+      payoutRows(s.db, eventId)
+        .map((p) => p.policyId)
+        .sort(),
+    ).toEqual([demo.policyId, real.policyId].sort());
+  });
+
   it('refuses an attestation from the wrong oracle key', async () => {
     const s = setup();
     await fund(s, 100_000);

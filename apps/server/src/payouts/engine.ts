@@ -27,7 +27,7 @@ import { isoDate, isoSeconds, unixSeconds } from '../lib/time.js';
 import { dueForRetry } from '../nostr/publisher.js';
 import { getAnnouncement, getAttestation } from '../oracle/jobs.js';
 import { crewSecrets } from '../pool/crews.js';
-import { pollDeposits, type MoneyCtx } from '../pool/deposits.js';
+import { paysDemoPolicies, pollDeposits, type MoneyCtx } from '../pool/deposits.js';
 import {
   eligiblePolicies,
   expirePolicies,
@@ -204,8 +204,9 @@ export async function planPayoutRun(ctx: PayoutCtx, attestationId: string): Prom
 
   const windowStart = new Date(report.announcement!.window.start);
   const coverAt = ctx.replay?.coverAt ?? windowStart;
-  // Replays pay demo crews only; a real wallet never pays demo policies; FakeWallet pays all.
-  const demo = replay ? true : ctx.wallet.simulated ? undefined : false;
+  // Replays pay demo crews only; a mainnet wallet never pays demo policies; FakeWallet and a
+  // test-funds wallet pay all.
+  const demo = replay ? true : paysDemoPolicies(ctx) ? undefined : false;
   const covered = eligiblePolicies(ctx.db, att.site, coverAt, demo === undefined ? {} : { demo });
   if (covered.length === 0)
     return record({ ...base, status: 'no_payout', verification, detail: 'no covered policy' });

@@ -46,9 +46,10 @@ Money (POOL_SECRET, WALLET_MODE):
 Demo:
   replay --site S --date D [--publish]   replay a past day with the demo key (tag ndox-replay);
          [--no-pay]                      a danger day pays the demo crews from a simulated wallet
-  seed-demo [--per-site N] [--weeks W]   enrol demo crews (Démo, *.invalid addresses) with cover
-            [--pool FCFA]                paid from a simulated wallet; FakeWallet mode: top the pool
-                                         up to FCFA (default 50 000) with a simulated levy
+  seed-demo [--per-site N] [--weeks W]   enrol demo crews (Démo) with cover active now, and top the
+            [--pool FCFA]                pool up to FCFA (default 50 000) with a levy. Simulated
+                                         (*.invalid addresses, simulated wallet), or on a test
+                                         network: faucet wallets, paid by TEST_PAYER_NWC_URL
 Admin:
   hash-password                          read a password on stdin, print its ADMIN_PASSWORD_HASH
   admin-password                         WALLET_MODE=fake without a hash: print the derived password
@@ -261,10 +262,11 @@ try {
         weeks: int(values.weeks, 'weeks'),
         poolFcfa: int(values.pool, 'pool') ?? 50_000,
       });
+      const kind = r.simulated ? 'simulated' : 'test-network';
       console.log(
-        `demo crews (Démo, Simulé): ${r.enrolled} enrolled, ${r.covered} newly covered ` +
-          `(${r.premiumSat} sats of simulated premiums)` +
-          (r.levySat ? `; simulated levy topping up the pool: ${r.levySat} sats` : ''),
+        `demo crews (Démo, ${r.simulated ? 'Simulé' : 'fonds de test'}): ${r.enrolled} enrolled, ` +
+          `${r.covered} newly covered (${r.premiumSat} sats of ${kind} premiums)` +
+          (r.levySat ? `; ${kind} levy topping up the pool: ${r.levySat} sats` : ''),
       );
       break;
     }

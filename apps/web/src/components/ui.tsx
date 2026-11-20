@@ -2,7 +2,14 @@
  * Design-system primitives (docs/BRIEF.md §10.3): Button, Badge, StatTile, EmptyState, ErrorState,
  * Section. Tokens live in index.css; icons are lucide at 20 px, stroke 1.75.
  */
-import { AlertTriangle, FlaskConical, History, RefreshCw, UserRound } from 'lucide-react';
+import {
+  AlertTriangle,
+  FlaskConical,
+  History,
+  RefreshCw,
+  TestTubeDiagonal,
+  UserRound,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ButtonHTMLAttributes, ComponentType, ReactNode } from 'react';
 import { Link } from 'wouter';
@@ -48,9 +55,10 @@ export function LinkButton({
   );
 }
 
-type BadgeKind = 'simulated' | 'replay' | 'demo' | 'forecast';
+export type BadgeKind = 'simulated' | 'test' | 'replay' | 'demo' | 'forecast';
 const BADGE: Record<BadgeKind, { cls: string; Icon: LucideIcon | null }> = {
   simulated: { cls: 'bg-warn-bg text-warn', Icon: FlaskConical },
+  test: { cls: 'bg-warn-bg text-warn', Icon: TestTubeDiagonal },
   replay: { cls: 'bg-ocean-50 text-ocean', Icon: History },
   demo: { cls: 'border border-line bg-bg text-muted', Icon: UserRound },
   forecast: { cls: 'border border-line bg-surface text-muted', Icon: null },
@@ -72,6 +80,21 @@ export function Badge({ kind, className = '' }: { kind: BadgeKind; className?: s
       <span className="sr-only">: {hint}</span>
     </span>
   );
+}
+
+/** Where money is shown: "Simulé" (FakeWallet), "Fonds de test" (test network), or nothing. */
+export function MoneyBadge({
+  simulated,
+  testFunds,
+  className,
+}: {
+  simulated?: boolean | undefined;
+  testFunds?: boolean | undefined;
+  className?: string;
+}) {
+  if (simulated) return <Badge kind="simulated" className={className} />;
+  if (testFunds) return <Badge kind="test" className={className} />;
+  return null;
 }
 
 export function StatTile({

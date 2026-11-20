@@ -34,8 +34,8 @@ import {
 import { createPolicy, PolicyError, policyStatusAt, type PolicyRow } from '../pool/policies.js';
 import { PolicySettingsPatch, updatePolicySettings } from '../pool/settings.js';
 import { poolSnapshot } from '../pool/stats.js';
+import { demoPayMode, payDemoDeposit } from '../pool/demopay.js';
 import type { Services } from '../services.js';
-import { FakeWallet } from '../wallet/fake.js';
 import {
   originAllowed,
   readSessionCookie,
@@ -173,6 +173,7 @@ export function registerAdminRoutes(app: FastifyInstance, s: Services): void {
     expiresAt: d.expiresAt,
     paidAt: d.paidAt,
     simulated: d.wallet === 'fake',
+    testFunds: d.wallet === 'nwc' && ctx.testFunds === true,
   });
   const latestPolicy = (crewId: string) =>
     db
@@ -181,6 +182,15 @@ export function registerAdminRoutes(app: FastifyInstance, s: Services): void {
       .where(eq(policies.crewId, crewId))
       .orderBy(desc(policies.createdAt), desc(policies.id))
       .get();
+
+  // what the dashboard needs to label money and offer the demo "pay" button
+  const walletInfo = {
+    kind: s.wallet.kind,
+    simulated: s.wallet.simulated,
+    testFunds: ctx.testFunds === true,
+    demoPay: demoPayMode(ctx),
+    network: config.network,
+  };
 
   const moneyError = (reply: FastifyReply, err: unknown) => {
     if (err instanceof DepositError || err instanceof PolicyError)
@@ -232,7 +242,7 @@ export function registerAdminRoutes(app: FastifyInstance, s: Services): void {
       admin.get('/session', async (req) => ({
         csrfToken: req.adminSession!.csrfToken,
         expiresAt: isoSeconds(new Date(req.adminSession!.expiresAt)),
-        wallet: { kind: s.wallet.kind, simulated: s.wallet.simulated, network: config.network },
+        wallet: walletInfo,
       }));
 
       // ── crews ────────────────────────────────────────────────────────────────────────────
@@ -369,16 +379,15 @@ export function registerAdminRoutes(app: FastifyInstance, s: Services): void {
         return depositView(findDeposit(p.data.paymentHash)!);
       });
 
-      if (ctx.wallet instanceof FakeWallet) {
-        const wallet = ctx.wallet;
+      if (demoPayMode(ctx)) {
         admin.post('/deposits/:paymentHash/simulate', async (req, reply) => {
           const p = HashParam.safeParse(req.params);
           if (!p.success) return bad(reply);
           const d = findDeposit(p.data.paymentHash);
           if (!d) return reply.code(404).send({ error: 'not_found' });
-          if (d.status === 'pending' && !wallet.simulatePayment(p.data.paymentHash))
-            return reply.code(409).send({ error: 'not_payable' });
-          await refreshDeposit(ctx, p.data.paymentHash);
+          const r = await payDemoDeposit(ctx, d);
+          if (r === 'not_payable') return reply.code(409).send({ error: 'not_payable' });
+          if (r === 'failed') return reply.code(502).send({ error: 'test_payment_failed' });
           return depositView(findDeposit(p.data.paymentHash)!);
         });
       }
@@ -418,6 +427,7 @@ export function registerAdminRoutes(app: FastifyInstance, s: Services): void {
               paymentHash: p.paymentHash,
               paidAt: p.paidAt,
               simulated: p.wallet === 'fake',
+              testFunds: p.wallet === 'nwc' && ctx.testFunds === true,
               createdAt: p.createdAt,
             })),
         };
@@ -501,7 +511,7 @@ export function registerAdminRoutes(app: FastifyInstance, s: Services): void {
             enabled: r.enabled,
             updatedAt: r.updatedAt,
           })),
-        wallet: { kind: s.wallet.kind, simulated: s.wallet.simulated, network: config.network },
+        wallet: walletInfo,
       });
 
       admin.get('/settings', async () => settingsView());

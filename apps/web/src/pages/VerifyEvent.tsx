@@ -7,7 +7,7 @@ import { DataTable } from '../components/DataTable';
 import { EquivocationDemo } from '../components/EquivocationDemo';
 import { OutcomeBadge } from '../components/OutcomeBadge';
 import { useToast } from '../components/Toast';
-import { Badge, Button, ErrorState, ICON, Skeleton } from '../components/ui';
+import { Badge, Button, ErrorState, ICON, MoneyBadge, Skeleton } from '../components/ui';
 import { useI18n } from '../i18n';
 import type { AttestationDetail, Meta, Outcome } from '../lib/api';
 import { fmtDate, fmtDateTime, fmtFcfa, fmtM, fmtSat, shortHex } from '../lib/format';
@@ -188,7 +188,7 @@ export default function VerifyEvent({ eventId }: { eventId: string }) {
       <header className="mb-8">
         <div className="flex flex-wrap items-center gap-2">
           {d.replay && <Badge kind="replay" />}
-          {d.payoutRun?.simulated && <Badge kind="simulated" />}
+          <MoneyBadge simulated={d.payoutRun?.simulated} testFunds={d.payoutRun?.testFunds} />
         </div>
         <h1 className="mt-2 text-title font-semibold tracking-tight text-ink sm:text-display">
           {t.event.title(siteName, fmtDate(d.date, lang, 'long'))}
@@ -330,7 +330,7 @@ export default function VerifyEvent({ eventId }: { eventId: string }) {
                     cell: (p) => (
                       <span className="inline-flex flex-wrap items-center gap-2">
                         {t.council.payoutStatus[p.status]}
-                        {p.simulated && <Badge kind="simulated" />}
+                        <MoneyBadge simulated={p.simulated} testFunds={p.testFunds} />
                       </span>
                     ),
                   },

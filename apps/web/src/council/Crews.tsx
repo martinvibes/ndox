@@ -196,7 +196,10 @@ function Enrol({ onDone }: { onDone: () => void }) {
   const [lnAddress, setLn] = useState('');
   const [phone, setPhone] = useState('');
   const [pseudonym, setPseudonym] = useState('');
-  const [demo, setDemo] = useState(session.wallet?.simulated ?? true);
+  // money that is not real (simulated or test sats) can only cover demo crews sensibly
+  const [demo, setDemo] = useState(
+    session.wallet ? session.wallet.simulated || session.wallet.testFunds : true,
+  );
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -321,7 +324,7 @@ function Premium({
   onPaid: () => void;
 }) {
   const { t, lang } = useI18n();
-  const { send } = useSession();
+  const { send, session } = useSession();
   const toast = useToast();
   const id = useId();
   const [weeks, setWeeks] = useState(4);
@@ -377,8 +380,9 @@ function Premium({
       setDeposit(
         await send<AdminDeposit>('POST', `/api/admin/deposits/${deposit.paymentHash}/simulate`),
       );
-    } catch {
-      toast(t.sponsor.errors.generic, 'error');
+    } catch (e) {
+      const failed = e instanceof ApiError && e.code === 'test_payment_failed';
+      toast(failed ? t.sponsor.errors.test_payment_failed : t.sponsor.errors.generic, 'error');
     } finally {
       setSimulating(false);
     }
@@ -427,9 +431,15 @@ function Premium({
           invoice={deposit.invoice}
           status={deposit.status}
           amount={fmtFcfa(deposit.amountFcfa, lang)}
-          simulated={deposit.simulated}
-          onSimulate={deposit.simulated ? () => void simulate() : undefined}
-          simulating={simulating}
+          demoPay={
+            deposit.simulated
+              ? 'simulate'
+              : deposit.testFunds && session.wallet?.demoPay === 'test'
+                ? 'test'
+                : null
+          }
+          onDemoPay={() => void simulate()}
+          paying={simulating}
         />
       )}
     </section>

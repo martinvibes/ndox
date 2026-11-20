@@ -8,6 +8,7 @@ import {
   Button,
   ErrorState,
   ICON,
+  MoneyBadge,
   SectionTitle,
   Skeleton,
   StatTile,
@@ -52,7 +53,9 @@ function PoolHealth() {
   const ratio = p.coverage.ratio;
   return (
     <section aria-labelledby="health">
-      <SectionTitle aside={p.wallet.simulated ? <Badge kind="simulated" /> : undefined}>
+      <SectionTitle
+        aside={<MoneyBadge simulated={p.wallet.simulated} testFunds={p.wallet.testFunds} />}
+      >
         <span id="health">{t.council.overview.health}</span>
       </SectionTitle>
       <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-card border border-line bg-line lg:grid-cols-4">
@@ -254,7 +257,12 @@ function RecentPayouts() {
   return (
     <section aria-labelledby="payouts">
       <SectionTitle
-        aside={items?.some((p) => p.simulated) ? <Badge kind="simulated" /> : undefined}
+        aside={
+          <MoneyBadge
+            simulated={items?.some((p) => p.simulated)}
+            testFunds={items?.some((p) => p.testFunds)}
+          />
+        }
       >
         <span id="payouts">{t.council.overview.payouts}</span>
       </SectionTitle>

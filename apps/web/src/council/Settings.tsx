@@ -1,7 +1,14 @@
 import { useEffect, useId, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useToast } from '../components/Toast';
-import { Badge, Button, ErrorState, PageTitle, SectionTitle, Skeleton } from '../components/ui';
+import {
+  Button,
+  ErrorState,
+  MoneyBadge,
+  PageTitle,
+  SectionTitle,
+  Skeleton,
+} from '../components/ui';
 import { useI18n } from '../i18n';
 import { ApiError } from '../lib/api';
 import type { AdminSettings, PolicySettings } from '../lib/api';
@@ -99,7 +106,14 @@ export default function Settings() {
       <PageTitle>{t.council.settings.title}</PageTitle>
       <form onSubmit={(e) => void save(e)} className="grid gap-12">
         <section aria-labelledby={`${id}-policy`}>
-          <SectionTitle aside={res.data.wallet.simulated ? <Badge kind="simulated" /> : undefined}>
+          <SectionTitle
+            aside={
+              <MoneyBadge
+                simulated={res.data.wallet.simulated}
+                testFunds={res.data.wallet.testFunds}
+              />
+            }
+          >
             <span id={`${id}-policy`}>{t.council.settings.policy}</span>
           </SectionTitle>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

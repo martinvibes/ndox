@@ -22,6 +22,7 @@ import {
   SCHEDULE,
   type AttestationRow,
 } from '../oracle/jobs.js';
+import { demoPayMode } from '../pool/demopay.js';
 import type { Services } from '../services.js';
 
 const EVENT_ID = /^ndox(-replay)?:[a-z0-9-]+:\d{4}-\d{2}-\d{2}(:[a-z0-9-]+)?$/;
@@ -80,6 +81,10 @@ export function registerPublicRoutes(app: FastifyInstance, s: Services): void {
       nostrPublish: config.nostrPublish,
       network: config.network,
       walletMode: config.walletMode,
+      /** An NWC wallet on a test network: real Lightning payments of sats without value. */
+      testFunds: s.money.testFunds === true,
+      /** The demo "pay" button: simulate (FakeWallet), test (test payer wallet) or none. */
+      demoPay: demoPayMode(s.money),
       /** lud16 of the pool's Nostr profile; zaps count only with a real wallet. */
       poolLightningAddress:
         config.walletMode === 'nwc' ? (config.poolLightningAddress ?? null) : null,
@@ -248,12 +253,14 @@ export function registerPublicRoutes(app: FastifyInstance, s: Services): void {
         return {
           ...rest,
           simulated: r.wallet === 'fake',
+          testFunds: r.wallet === 'nwc' && s.money.testFunds === true,
           event: eventJson ? (JSON.parse(eventJson) as NostrEvent) : null,
         };
       })(),
       payouts: payoutRows.map(({ receiptJson, ...rest }) => ({
         ...rest,
         simulated: rest.wallet === 'fake',
+        testFunds: rest.wallet === 'nwc' && s.money.testFunds === true,
         receipt: receiptJson ? (JSON.parse(receiptJson) as NostrEvent) : null,
       })),
     };

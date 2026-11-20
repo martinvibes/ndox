@@ -13,6 +13,7 @@ import { errorMessage } from '../lib/log.js';
 import { isoDate, isoSeconds } from '../lib/time.js';
 import type { Price } from '../money/price.js';
 import { outstandingSatFor, paidTodaySatFor, type PayoutCtx } from '../payouts/engine.js';
+import { paysDemoPolicies } from './deposits.js';
 
 export interface SiteCoverage {
   site: string;
@@ -25,7 +26,8 @@ export interface SiteCoverage {
 
 export interface PoolSnapshot {
   asOf: string;
-  wallet: { kind: 'fake' | 'nwc'; simulated: boolean; network: string };
+  /** testFunds: real Lightning payments of sats without value (an NWC wallet on a test network). */
+  wallet: { kind: 'fake' | 'nwc'; simulated: boolean; testFunds: boolean; network: string };
   /** null if the wallet could not be reached. */
   balanceSat: number | null;
   balanceFcfa: number | null;
@@ -78,8 +80,8 @@ export async function poolSnapshot(ctx: PayoutCtx, network: string): Promise<Poo
   const availableSat =
     balanceSat === null ? null : Math.max(0, balanceSat - s.reserveFloorSats - outstandingSat);
 
-  // a real wallet never pays demo policies, so they are not part of its exposure
-  const demoScope = ctx.wallet.simulated ? undefined : eq(policies.demo, false);
+  // a mainnet wallet never pays demo policies, so they are not part of its exposure
+  const demoScope = paysDemoPolicies(ctx) ? undefined : eq(policies.demo, false);
   const live = db
     .select()
     .from(policies)
@@ -194,7 +196,7 @@ export async function poolSnapshot(ctx: PayoutCtx, network: string): Promise<Poo
   const coveredTotal = siteRows.reduce((t, r) => t + r.covered, 0);
   return {
     asOf: nowIso,
-    wallet: { kind, simulated: ctx.wallet.simulated, network },
+    wallet: { kind, simulated: ctx.wallet.simulated, testFunds: ctx.testFunds === true, network },
     balanceSat,
     balanceFcfa: balanceSat !== null && price ? satToFcfa(balanceSat, price.xofPerBtc) : null,
     outstandingSat,

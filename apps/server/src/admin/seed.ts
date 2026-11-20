@@ -1,8 +1,11 @@
 /**
- * Demo crews (docs/BRIEF.md §4 honesty rule, §15): N crews per site, labelled Démo, with
- * team-controlled `*.invalid` Lightning addresses, covered by premiums paid from a simulated
- * wallet and backdated by the waiting period so the cover is active now. Demo policies are paid
- * only by simulated wallets (FakeWallet mode and replays), never by a real NWC wallet.
+ * Demo crews (docs/BRIEF.md §4 honesty rule, §15): N crews per site, labelled Démo, covered by
+ * premiums backdated by the waiting period so the cover is active now. Two set-ups:
+ *  - simulated (FakeWallet, or a mainnet NWC pool): team-controlled `*.invalid` addresses and
+ *    premiums paid by a simulated wallet. A mainnet wallet never pays demo policies.
+ *  - test funds (NWC wallet on a test network): each crew gets a faucet test wallet (a Lightning
+ *    address that really receives its payout), and the test payer pays the premiums and the levy
+ *    into the pool over Lightning. Every sat involved is a test sat.
  *
  * Idempotent: tops each site up to N active demo crews, renews only lapsed demo cover, and
  * tops the simulated pool up to a target balance.
@@ -21,8 +24,9 @@ export interface SeedDemoOptions {
   perSite?: number;
   weeks?: number;
   /**
-   * FakeWallet mode only: top the simulated pool up to this many FCFA with a simulated levy
-   * (nothing if it already holds that much), so re-running does not keep adding money.
+   * Top the pool up to this many FCFA with a levy (nothing if it already holds that much), so
+   * re-running does not keep adding money. FakeWallet: simulated; test funds: paid by the test
+   * payer. Ignored with a mainnet wallet.
    */
   poolFcfa?: number;
 }
@@ -32,7 +36,8 @@ export interface SeedDemoResult {
   covered: number;
   premiumSat: number;
   levySat: number;
-  simulated: true;
+  /** false: premiums and levy were real Lightning payments of test sats. */
+  simulated: boolean;
 }
 
 export async function seedDemo(s: Services, o: SeedDemoOptions = {}): Promise<SeedDemoResult> {
@@ -42,10 +47,13 @@ export async function seedDemo(s: Services, o: SeedDemoOptions = {}): Promise<Se
     throw new Error('perSite must be 1–50');
   if (!Number.isInteger(weeks) || weeks < 1 || weeks > 52) throw new Error('weeks must be 1–52');
 
-  // premiums for demo cover come from a simulated wallet: the pool itself in FakeWallet mode,
-  // a separate simulated account next to a real wallet (so the real pool's books stay real)
-  const wallet =
-    s.wallet instanceof FakeWallet
+  // Who pays demo premiums: the test payer into the test pool (real Lightning, test sats); else a
+  // simulated wallet: the pool itself in FakeWallet mode, a separate simulated account next to a
+  // mainnet wallet (so the real pool's books stay real).
+  const testPayer = s.money.testFunds ? (s.money.testPayer ?? null) : null;
+  const wallet = testPayer
+    ? s.wallet
+    : s.wallet instanceof FakeWallet
       ? s.wallet
       : new FakeWallet({
           db: s.db,
@@ -53,21 +61,30 @@ export async function seedDemo(s: Services, o: SeedDemoOptions = {}): Promise<Se
           account: 'demo-premiums',
           clock: s.clock,
         });
+  const pay = async (
+    ctx: typeof s.money,
+    d: { paymentHash: string | null; invoice: string | null },
+  ) => {
+    if (testPayer) await testPayer.payInvoice(d.invoice!);
+    else if (!(wallet as FakeWallet).simulatePayment(d.paymentHash!))
+      throw new Error('simulated payment refused');
+    const after = await refreshDeposit(ctx, d.paymentHash!);
+    if (after?.status !== 'paid') throw new Error('demo deposit did not settle');
+  };
   const now = s.clock();
   const settings = s.settings();
   const paidAt = new Date(now.getTime() - settings.waitingHours * 3600_000);
   const backdated = { ...s.money, wallet, publisher: null, clock: () => paidAt };
 
   let levySat = 0;
-  if (o.poolFcfa && s.wallet instanceof FakeWallet) {
+  if (o.poolFcfa && (testPayer || s.wallet instanceof FakeWallet)) {
     const { xofPerBtc } = await s.prices.get();
     const deficitSat = fcfaToSat(o.poolFcfa, xofPerBtc, 'ceil') - (await s.wallet.getBalanceSat());
     if (deficitSat > 0) {
       // smallest whole FCFA amount covering the deficit (integer ceil of sat × XOF/BTC ÷ 1e8)
       const amountFcfa = Math.max(100, Math.floor((deficitSat * xofPerBtc + 1e8 - 1) / 1e8));
       const d = await createDeposit(s.money, { kind: 'levy', amountFcfa });
-      s.wallet.simulatePayment(d.paymentHash!);
-      await refreshDeposit(s.money, d.paymentHash!);
+      await pay(s.money, d);
       levySat = d.amountSat;
     }
   }
@@ -81,11 +98,11 @@ export async function seedDemo(s: Services, o: SeedDemoOptions = {}): Promise<Se
       .all().length;
     for (let i = have; i < perSite; i++) {
       const n = String(i + 1).padStart(2, '0');
-      enrolCrew(s.db, s.piiKey, {
-        site: site.id,
-        lnAddress: `${site.id}-${n}@demo.ndox.invalid`,
-        demo: true,
-      });
+      // test funds: a faucet wallet that really receives the payout
+      const lnAddress = s.faucet
+        ? (await s.faucet.createWallet()).lightningAddress
+        : `${site.id}-${n}@demo.ndox.invalid`;
+      enrolCrew(s.db, s.piiKey, { site: site.id, lnAddress, demo: true });
       enrolled++;
     }
   }
@@ -125,11 +142,10 @@ export async function seedDemo(s: Services, o: SeedDemoOptions = {}): Promise<Se
       premiumWeeklyFcfa: weeklyPremiumFor(s.money, s.db, crew.site),
     });
     const d = await createDeposit(backdated, { kind: 'premium', policyId: policy.id });
-    wallet.simulatePayment(d.paymentHash!);
-    await refreshDeposit(backdated, d.paymentHash!);
+    await pay(backdated, d);
     covered++;
     premiumSat += d.amountSat;
   }
 
-  return { enrolled, covered, premiumSat, levySat, simulated: true };
+  return { enrolled, covered, premiumSat, levySat, simulated: !testPayer };
 }

@@ -2,7 +2,9 @@ import { BarChart3, HandCoins, ShieldCheck, Waves } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useI18n } from '../i18n';
+import type { Meta } from '../lib/api';
 import type { Lang } from '../lib/format';
+import { useApi } from '../lib/useApi';
 
 const REPO = 'https://github.com/martinvibes/ndox';
 
@@ -126,6 +128,15 @@ export function PublicLayout({ children }: { children: ReactNode }) {
 
 export function Footer() {
   const { t } = useI18n();
+  const meta = useApi<Meta>('/api/meta');
+  const m = meta.data;
+  const network = !m
+    ? null
+    : m.walletMode === 'fake'
+      ? t.footer.network.simulated
+      : m.testFunds
+        ? t.footer.network.test
+        : t.footer.network.mainnet;
   return (
     <footer className="border-t border-line">
       <div className="mx-auto flex max-w-[720px] flex-col gap-2 px-4 py-6 text-sm text-muted sm:flex-row sm:flex-wrap sm:gap-x-6">
@@ -143,6 +154,7 @@ export function Footer() {
           {t.nav.council}
         </Link>
         <span>{t.footer.data}</span>
+        {network && <span data-testid="footer-network">{network}</span>}
       </div>
     </footer>
   );

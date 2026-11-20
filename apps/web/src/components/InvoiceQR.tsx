@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { encode } from 'uqr';
 import { useI18n } from '../i18n';
 import { useToast } from './Toast';
+import type { DemoPay } from '../lib/api';
 import { Badge, Button, ICON } from './ui';
 
 const QUIET = 4;
@@ -26,16 +27,17 @@ export function InvoiceQR({
   invoice,
   status,
   amount,
-  simulated,
-  onSimulate,
-  simulating,
+  demoPay = null,
+  onDemoPay,
+  paying,
 }: {
   invoice: string;
   status: InvoiceStatus;
   amount: string;
-  simulated: boolean;
-  onSimulate?: () => void;
-  simulating?: boolean;
+  /** The demo "pay" button: simulate (FakeWallet) or test (test payer wallet). */
+  demoPay?: DemoPay;
+  onDemoPay?: () => void;
+  paying?: boolean;
 }) {
   const { t } = useI18n();
   const toast = useToast();
@@ -83,7 +85,9 @@ export function InvoiceQR({
           </p>
           {!paid && status === 'pending' && (
             <>
-              <p className="text-sm text-muted">{t.sponsor.scan}</p>
+              <p className="text-sm text-muted">
+                {demoPay === 'test' ? t.sponsor.scanTest : t.sponsor.scan}
+              </p>
               <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                 <a
                   href={`lightning:${invoice}`}
@@ -108,13 +112,23 @@ export function InvoiceQR({
               <p className="font-mono text-[12px] break-all text-muted select-all">{invoice}</p>
             </>
           )}
-          {simulated && status === 'pending' && onSimulate && (
+          {demoPay && status === 'pending' && onDemoPay && (
             <div className="flex flex-wrap items-center gap-2 border-t border-dashed border-line pt-3">
-              <Badge kind="simulated" />
-              <Button variant="secondary" onClick={onSimulate} disabled={simulating}>
-                {t.sponsor.simulate}
+              <Badge kind={demoPay === 'test' ? 'test' : 'simulated'} />
+              <Button
+                variant="secondary"
+                onClick={onDemoPay}
+                disabled={paying}
+                data-testid="demo-pay"
+              >
+                {paying && demoPay === 'test' ? (
+                  <Loader2 {...ICON} className="animate-spin motion-reduce:animate-none" />
+                ) : null}
+                {demoPay === 'test' ? t.sponsor.testPay : t.sponsor.simulate}
               </Button>
-              <span className="text-sm text-muted">{t.sponsor.simulateHint}</span>
+              <span className="text-sm text-muted">
+                {demoPay === 'test' ? t.sponsor.testPayHint : t.sponsor.simulateHint}
+              </span>
             </div>
           )}
         </div>

@@ -8,6 +8,7 @@ import { runPayoutJobs } from '../payouts/engine.js';
 import { enrolCrew } from '../pool/crews.js';
 import { createServices, type ServiceOverrides } from '../services.js';
 import { memoryDb, settableClock, StubSource } from '../test/helpers.js';
+import { FakeWallet } from '../wallet/fake.js';
 import type { Wallet } from '../wallet/types.js';
 
 const SECRETS = {
@@ -211,6 +212,71 @@ describe('money API', () => {
     expect(detail.payoutRun.event?.tags[0]).toEqual(['d', `ndox:payout-run:${att.eventId}`]);
     expect(detail.payouts[0]).toMatchObject({ simulated: true });
     expect(detail.payouts[0]!.receipt).not.toBeNull();
+  });
+
+  it('on a test network, the demo button pays over Lightning from the test payer wallet', async () => {
+    const db = memoryDb();
+    const t = settableClock('2026-11-19T12:00:00Z');
+    const seed = '66'.repeat(32);
+    const fakePool = new FakeWallet({ db, seed, account: 'pool', clock: t.clock });
+    // an NWC wallet holding test sats: real payments, so not "simulated"
+    const pool: Wallet = {
+      kind: 'nwc',
+      simulated: false,
+      makeInvoice: (a, m, e) => fakePool.makeInvoice(a, m, e),
+      payInvoice: (i) => fakePool.payInvoice(i),
+      lookupInvoice: (h) => fakePool.lookupInvoice(h),
+      getBalanceSat: () => fakePool.getBalanceSat(),
+    };
+    const payer = new FakeWallet({ db, seed, account: 'payer', clock: t.clock, openingSat: 1e6 });
+    const config = loadConfig({
+      ...SECRETS,
+      DATABASE_PATH: '/nonexistent/ndox.sqlite',
+      SEED_DIR: DEFAULT_PATHS.seedDir,
+    });
+    const services = createServices(config, db, silentLog, {
+      clock: t.clock,
+      liveSource: StubSource.constant({ ecmwf_wam: 2.9, ncep_gfswave025: 2.7 }),
+      publisher: null,
+      priceFetch,
+      wallet: pool,
+      testFunds: true,
+      testPayer: payer,
+    });
+    const s = { app: await buildApp({ services }), services, t, db };
+
+    expect((await s.app.inject('/api/meta')).json()).toMatchObject({
+      testFunds: true,
+      demoPay: 'test',
+    });
+    expect((await s.app.inject('/api/pool')).json()).toMatchObject({
+      wallet: { kind: 'nwc', simulated: false, testFunds: true },
+    });
+    const inv = await sponsor(s, { amountFcfa: 1000 });
+    expect(inv).toMatchObject({ status: 'pending', simulated: false, testFunds: true });
+
+    const res = await simulate(s, inv.paymentHash);
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toMatchObject({ status: 'paid', simulated: false, testFunds: true });
+    expect(await payer.getBalanceSat()).toBe(1e6 - inv.amountSat);
+    expect(await pool.getBalanceSat()).toBe(inv.amountSat);
+    // a second press is harmless: no second payment
+    expect((await simulate(s, inv.paymentHash)).json()).toMatchObject({ status: 'paid' });
+    expect(await payer.getBalanceSat()).toBe(1e6 - inv.amountSat);
+
+    // a payer that cannot pay is reported, not hidden
+    const broke = await sponsor(s, { amountFcfa: 1000 });
+    services.money.testPayer = {
+      kind: 'nwc',
+      simulated: false,
+      makeInvoice: (a, m, e) => payer.makeInvoice(a, m, e),
+      payInvoice: () => Promise.reject(new Error('insufficient balance')),
+      lookupInvoice: (h) => payer.lookupInvoice(h),
+      getBalanceSat: () => payer.getBalanceSat(),
+    };
+    const fail = await simulate(s, broke.paymentHash);
+    expect(fail.statusCode).toBe(502);
+    expect(fail.json()).toEqual({ error: 'test_payment_failed' });
   });
 
   it('has no "simulate payment" endpoint with a real wallet', async () => {

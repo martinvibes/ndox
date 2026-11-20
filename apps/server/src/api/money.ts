@@ -10,8 +10,8 @@ import { errorMessage } from '../lib/log.js';
 import { RateLimiter } from '../lib/ratelimit.js';
 import { DepositError, createDeposit, refreshDeposit, weeklyPremiumFor } from '../pool/deposits.js';
 import { poolSnapshot, type PoolSnapshot } from '../pool/stats.js';
+import { demoPayMode, payDemoDeposit } from '../pool/demopay.js';
 import type { Services } from '../services.js';
-import { FakeWallet } from '../wallet/fake.js';
 
 const HASH = /^[0-9a-f]{64}$/;
 const SponsorBody = z
@@ -93,6 +93,7 @@ export function registerMoneyRoutes(app: FastifyInstance, s: Services): void {
         preimage: p.status === 'paid' ? p.preimage : null,
         paidAt: p.paidAt,
         simulated: p.wallet === 'fake',
+        testFunds: p.wallet === 'nwc' && ctx.testFunds === true,
         receiptNostrId: p.receiptJson ? (JSON.parse(p.receiptJson) as { id: string }).id : null,
         receiptPublishedAt: p.receiptPublishedAt,
       })),
@@ -123,6 +124,7 @@ export function registerMoneyRoutes(app: FastifyInstance, s: Services): void {
       expiresAt: d.expiresAt,
       paidAt: d.paidAt,
       simulated: d.wallet === 'fake',
+      testFunds: d.wallet === 'nwc' && ctx.testFunds === true,
     };
   };
 
@@ -187,18 +189,18 @@ export function registerMoneyRoutes(app: FastifyInstance, s: Services): void {
     return sponsorView(sponsorDeposit(p.data.paymentHash)!);
   });
 
-  // Demo only (WALLET_MODE=fake): "Simuler le paiement". Absent with a real wallet.
-  if (ctx.wallet instanceof FakeWallet) {
-    const wallet = ctx.wallet;
+  // Demo only: "Simuler le paiement" (WALLET_MODE=fake) or "Payer avec le portefeuille de test"
+  // (an NWC wallet on a test network with TEST_PAYER_NWC_URL). Absent with a mainnet wallet.
+  if (demoPayMode(ctx)) {
     app.post('/api/sponsor/invoice/:paymentHash/simulate', async (req, reply) => {
       if (limit(invoiceLimiter, 'sponsor-sim', req, reply)) return reply;
       const p = HashParam.safeParse(req.params);
       if (!p.success) return reply.code(400).send({ error: 'bad_request' });
       const d = sponsorDeposit(p.data.paymentHash);
       if (!d) return reply.code(404).send({ error: 'not_found' });
-      if (d.status === 'pending' && !wallet.simulatePayment(p.data.paymentHash))
-        return reply.code(409).send({ error: 'not_payable' });
-      await refreshDeposit(ctx, p.data.paymentHash);
+      const r = await payDemoDeposit(ctx, d);
+      if (r === 'not_payable') return reply.code(409).send({ error: 'not_payable' });
+      if (r === 'failed') return reply.code(502).send({ error: 'test_payment_failed' });
       cached = null;
       noStore(reply);
       return sponsorView(sponsorDeposit(p.data.paymentHash)!);

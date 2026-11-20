@@ -17,6 +17,7 @@ import { Pricing } from './pool/pricing.js';
 import { getPolicySettings, policyDefaults, type PolicySettings } from './pool/settings.js';
 import { FakeLnAddressResolver, FakeWallet } from './wallet/fake.js';
 import { LnurlResolver } from './wallet/lnaddress.js';
+import { NwcFaucet, type TestFaucet } from './wallet/faucet.js';
 import { NwcWallet } from './wallet/nwc.js';
 import type { LnAddressResolver, Wallet } from './wallet/types.js';
 import { OutlookService } from './wave/outlook.js';
@@ -38,6 +39,11 @@ export interface Services {
   pricing: Pricing;
   /** The pool wallet: FakeWallet ("Simulé") or NWC. */
   wallet: Wallet;
+  /**
+   * NETWORK_LABEL=test only: creates test wallets so demo crews get Lightning addresses that
+   * really receive their (test) payouts. null otherwise.
+   */
+  faucet: TestFaucet | null;
   /** Live money context: deposits, policies, payouts (POOL_SECRET). */
   money: PayoutCtx;
   /** What a replay needs to pay demo crews from a simulated wallet. */
@@ -57,6 +63,9 @@ export interface ServiceOverrides {
   priceFetch?: typeof fetch;
   zapSource?: ZapSource;
   zapperPubkey?: () => Promise<string>;
+  testFunds?: boolean;
+  testPayer?: Wallet | null;
+  faucet?: TestFaucet | null;
 }
 
 export function createServices(
@@ -115,6 +124,20 @@ export function createServices(
   const defaults = policyDefaults(config);
   const settings = () => getPolicySettings(db, defaults);
   const piiKey = deriveKey(config.secrets.pii, 'pii');
+  // test networks only (config refuses a test payer on mainnet): sats without value
+  const testFunds = o.testFunds ?? config.testFunds;
+  const testPayer: Wallet | null =
+    o.testPayer !== undefined
+      ? o.testPayer
+      : config.testPayerNwcUrl
+        ? new NwcWallet({ url: config.testPayerNwcUrl, clock })
+        : null;
+  const faucet: TestFaucet | null =
+    o.faucet !== undefined
+      ? o.faucet
+      : testFunds && config.network === 'test'
+        ? new NwcFaucet({ baseUrl: config.testFaucetUrl })
+        : null;
   // zaps count only when a real wallet can confirm them (it serves POOL_LIGHTNING_ADDRESS)
   const zaps =
     config.poolLightningAddress && !wallet.simulated
@@ -140,6 +163,8 @@ export function createServices(
     oraclePubkey: getPublicKey(config.secrets.oracle),
     zaps,
     profile: { lud16: config.poolLightningAddress, website: config.publicBaseUrl },
+    testFunds,
+    testPayer: testFunds ? testPayer : null,
   };
 
   return {
@@ -154,6 +179,7 @@ export function createServices(
     prices,
     pricing,
     wallet,
+    faucet,
     money,
     replayPayouts: { fakeSeed, demoOraclePubkey: getPublicKey(config.secrets.demoOracle) },
     piiKey,
@@ -163,6 +189,7 @@ export function createServices(
       publisher?.close?.();
       zaps?.close();
       wallet.close?.();
+      testPayer?.close?.();
       db.$client.close();
     },
   };

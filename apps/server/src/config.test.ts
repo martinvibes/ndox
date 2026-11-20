@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { ConfigError, loadConfig } from './config.js';
+import { hashPassword } from './lib/password.js';
 
 const hex = (c: string) => c.repeat(64);
 
@@ -72,6 +73,34 @@ describe('loadConfig', () => {
     expect(msg).toContain('NWC_URL');
     expect(msg).toContain('ADMIN_PASSWORD_HASH');
     expect(msg).not.toContain(hex('1'));
+  });
+
+  it('marks an NWC wallet on a test network as test funds, and refuses a test payer on mainnet', async () => {
+    const nwc = {
+      DATABASE_PATH: tempDbPath(),
+      WALLET_MODE: 'nwc',
+      NWC_URL: 'nostr+walletconnect://pool?secret=a',
+      ADMIN_PASSWORD_HASH: await hashPassword('a long council passphrase'),
+      ORACLE_SECRET: hex('1'),
+      DEMO_ORACLE_SECRET: hex('2'),
+      POOL_SECRET: hex('3'),
+      SESSION_SECRET: hex('4'),
+      PII_ENCRYPTION_KEY: hex('5'),
+    };
+    const payer = 'nostr+walletconnect://payer?secret=b';
+    const test = loadConfig({ ...nwc, NETWORK_LABEL: 'test', TEST_PAYER_NWC_URL: payer });
+    expect(test.testFunds).toBe(true);
+    expect(test.testPayerNwcUrl).toBe(payer);
+    expect(test.testFaucetUrl).toBe('https://faucet.nwc.dev');
+    expect(loadConfig(nwc).testFunds).toBe(false);
+    expect(() => loadConfig({ ...nwc, TEST_PAYER_NWC_URL: payer })).toThrow(/test networks only/);
+    expect(() =>
+      loadConfig({ ...nwc, NETWORK_LABEL: 'test', TEST_PAYER_NWC_URL: nwc.NWC_URL }),
+    ).toThrow(/different wallet/);
+    // the simulated wallet is never "test funds", whatever the label says
+    const fake = loadConfig({ DATABASE_PATH: tempDbPath(), NETWORK_LABEL: 'test' });
+    expect(fake.testFunds).toBe(false);
+    expect(fake.testPayerNwcUrl).toBeUndefined();
   });
 
   it('rejects shared keys, invalid keys and malformed values', () => {

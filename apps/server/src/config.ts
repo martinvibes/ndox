@@ -33,7 +33,9 @@ const EnvSchema = z.object({
   PII_ENCRYPTION_KEY: hex32.optional(),
   WALLET_MODE: z.enum(['fake', 'nwc']).default('fake'),
   NWC_URL: z.string().startsWith('nostr+walletconnect://').optional(),
-  NETWORK_LABEL: z.enum(['mainnet', 'mutinynet', 'regtest']).default('mainnet'),
+  NETWORK_LABEL: z.enum(['mainnet', 'mutinynet', 'regtest', 'test']).default('mainnet'),
+  TEST_PAYER_NWC_URL: z.string().startsWith('nostr+walletconnect://').optional(),
+  TEST_FAUCET_URL: z.url().default('https://faucet.nwc.dev'),
   DAILY_PAYOUT_CAP_SATS: z.coerce.number().int().min(0).default(20_000),
   RESERVE_FLOOR_SATS: z.coerce.number().int().min(0).default(0),
   NOSTR_RELAYS: z
@@ -96,7 +98,19 @@ export interface Config {
   generatedSecretsFile: string | undefined;
   walletMode: 'fake' | 'nwc';
   nwcUrl: string | undefined;
-  network: 'mainnet' | 'mutinynet' | 'regtest';
+  network: 'mainnet' | 'mutinynet' | 'regtest' | 'test';
+  /**
+   * An NWC wallet on a test network (NETWORK_LABEL≠mainnet): real Lightning payments of sats
+   * that have no value. Such a pool may pay demo crews; a mainnet wallet never does.
+   */
+  testFunds: boolean;
+  /**
+   * Test networks only: a second NWC wallet that pays an invoice when someone presses
+   * "Payer avec le portefeuille de test". Never accepted on mainnet (it would spend real sats).
+   */
+  testPayerNwcUrl: string | undefined;
+  /** NWC faucet used to create test wallets for demo crews (NETWORK_LABEL=test). */
+  testFaucetUrl: string;
   dailyPayoutCapSats: number;
   reserveFloorSats: number;
   relays: string[];
@@ -162,6 +176,10 @@ export function loadConfig(
     if (missing.length > 0) {
       throw new ConfigError(`WALLET_MODE=nwc requires: ${missing.join(', ')}`);
     }
+    if (e.TEST_PAYER_NWC_URL && e.NETWORK_LABEL === 'mainnet')
+      throw new ConfigError('TEST_PAYER_NWC_URL is for test networks only (NETWORK_LABEL=mainnet)');
+    if (e.TEST_PAYER_NWC_URL && e.TEST_PAYER_NWC_URL === e.NWC_URL)
+      throw new ConfigError('TEST_PAYER_NWC_URL must be a different wallet from NWC_URL');
     secretValues = provided as Record<SecretName, string>;
   } else {
     const res = fillSecrets(provided, join(dirname(databasePath), 'secrets.json'));
@@ -188,6 +206,9 @@ export function loadConfig(
     walletMode: e.WALLET_MODE,
     nwcUrl: e.NWC_URL,
     network: e.NETWORK_LABEL,
+    testFunds: e.WALLET_MODE === 'nwc' && e.NETWORK_LABEL !== 'mainnet',
+    testPayerNwcUrl: e.WALLET_MODE === 'nwc' ? e.TEST_PAYER_NWC_URL : undefined,
+    testFaucetUrl: e.TEST_FAUCET_URL.replace(/\/+$/, ''),
     dailyPayoutCapSats: e.DAILY_PAYOUT_CAP_SATS,
     reserveFloorSats: e.RESERVE_FLOOR_SATS,
     relays: e.NOSTR_RELAYS,

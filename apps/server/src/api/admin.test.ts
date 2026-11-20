@@ -8,10 +8,11 @@ import { derivedAdminPassword, hashPassword } from '../lib/password.js';
 import { announce, attest, fetchForecasts } from '../oracle/jobs.js';
 import { DEFAULT_PATHS } from '../paths.js';
 import { runPayoutJobs } from '../payouts/engine.js';
-import { createServices } from '../services.js';
+import { createServices, type ServiceOverrides } from '../services.js';
 import { memoryDb, settableClock, StubSource } from '../test/helpers.js';
-import { FakeLnAddressResolver } from '../wallet/fake.js';
-import type { LnAddressResolver } from '../wallet/types.js';
+import { FakeLnAddressResolver, FakeWallet } from '../wallet/fake.js';
+import type { TestFaucet } from '../wallet/faucet.js';
+import type { LnAddressResolver, Wallet } from '../wallet/types.js';
 
 const SECRETS = {
   ORACLE_SECRET: '11'.repeat(32),
@@ -35,7 +36,11 @@ class SwitchResolver implements LnAddressResolver {
   }
 }
 
-async function setup(env: Record<string, string> = {}, fetchPrice: typeof fetch = priceFetch) {
+async function setup(
+  env: Record<string, string> = {},
+  fetchPrice: typeof fetch = priceFetch,
+  overrides: (db: ReturnType<typeof memoryDb>, clock: () => Date) => ServiceOverrides = () => ({}),
+) {
   const config = loadConfig({
     ...SECRETS,
     DATABASE_PATH: '/nonexistent/ndox.sqlite',
@@ -53,6 +58,7 @@ async function setup(env: Record<string, string> = {}, fetchPrice: typeof fetch 
     publisher: null,
     priceFetch: fetchPrice,
     resolver,
+    ...overrides(db, t.clock),
   });
   resolver.inner = new FakeLnAddressResolver({
     db,
@@ -452,5 +458,41 @@ describe('seedDemo', () => {
       covered: 0,
       levySat: 0,
     });
+  });
+  it('on a test network, gives demo crews faucet wallets and pays premiums over Lightning', async () => {
+    const addresses: string[] = [];
+    const faucet: TestFaucet = {
+      createWallet: async () => {
+        const lightningAddress = `nwc${addresses.length + 1}@faucet.example`;
+        addresses.push(lightningAddress);
+        return { lightningAddress };
+      },
+    };
+    let payer: FakeWallet | undefined;
+    let fakePool: FakeWallet | undefined;
+    const { services } = await setup({}, priceFetch, (db, clock) => {
+      const seed = '77'.repeat(32);
+      fakePool = new FakeWallet({ db, seed, account: 'pool', clock });
+      payer = new FakeWallet({ db, seed, account: 'payer', clock, openingSat: 1e7 });
+      const pool: Wallet = {
+        kind: 'nwc',
+        simulated: false,
+        makeInvoice: (a, m, e) => fakePool!.makeInvoice(a, m, e),
+        payInvoice: (i) => fakePool!.payInvoice(i),
+        lookupInvoice: (h) => fakePool!.lookupInvoice(h),
+        getBalanceSat: () => fakePool!.getBalanceSat(),
+      };
+      return { wallet: pool, testFunds: true, testPayer: payer, faucet };
+    });
+    const r = await seedDemo(services, { perSite: 1, poolFcfa: 10_000 });
+    expect(r).toMatchObject({ enrolled: 4, covered: 4, simulated: false });
+    expect(addresses).toHaveLength(4);
+    // every sat in the pool came from the test payer, over (fake) Lightning
+    expect(await services.wallet.getBalanceSat()).toBe(r.premiumSat + r.levySat);
+    expect(await payer!.getBalanceSat()).toBe(1e7 - r.premiumSat - r.levySat);
+    const snap = await (await import('../pool/stats.js')).poolSnapshot(services.money, 'test');
+    // a test-funds pool pays demo crews, so their cover is its exposure
+    expect(snap.policies).toMatchObject({ covered: 4, waiting: 0 });
+    expect(snap.wallet).toMatchObject({ kind: 'nwc', simulated: false, testFunds: true });
   });
 });

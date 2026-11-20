@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { Link, Route, Switch, useLocation } from 'wouter';
 import { LangToggle, Wordmark } from '../components/Layout';
 import { useToast } from '../components/Toast';
-import { Badge, Button, Skeleton } from '../components/ui';
+import { Button, MoneyBadge, Skeleton } from '../components/ui';
 import { useI18n } from '../i18n';
 import { api, ApiError, type AdminSession } from '../lib/api';
 import { SessionProvider } from './session';
@@ -47,7 +47,12 @@ export default function Council() {
             <Wordmark />
           </Link>
           <span className="text-muted">{t.council.title}</span>
-          {state.kind === 'in' && state.session.wallet?.simulated && <Badge kind="simulated" />}
+          {state.kind === 'in' && (
+            <MoneyBadge
+              simulated={state.session.wallet?.simulated}
+              testFunds={state.session.wallet?.testFunds}
+            />
+          )}
           <div className="ml-auto flex items-center gap-2 sm:order-last">
             <LangToggle />
             {state.kind === 'in' && (

@@ -58,6 +58,9 @@ export const api = {
 
 // ── public ──────────────────────────────────────────────────────────────────────────────────
 
+/** The demo "pay" button: simulate (FakeWallet), test (test payer wallet) or none. */
+export type DemoPay = 'simulate' | 'test' | null;
+
 export interface Meta {
   oraclePubkey: string;
   demoOraclePubkey: string;
@@ -66,6 +69,9 @@ export interface Meta {
   nostrPublish: boolean;
   network: string;
   walletMode: 'fake' | 'nwc';
+  /** An NWC wallet on a test network: real Lightning payments of sats without value. */
+  testFunds: boolean;
+  demoPay: DemoPay;
   poolLightningAddress: string | null;
   schedule: { announce: string; fetch: string; attest: string };
   window: { start: string; end: string; timezone: string };
@@ -125,7 +131,7 @@ export interface SiteCoverage {
 
 export interface Pool {
   asOf: string;
-  wallet: { kind: 'fake' | 'nwc'; simulated: boolean; network: string };
+  wallet: { kind: 'fake' | 'nwc'; simulated: boolean; testFunds: boolean; network: string };
   balanceSat: number | null;
   balanceFcfa: number | null;
   outstandingSat: number;
@@ -168,6 +174,7 @@ export interface PayoutProof {
   paymentHash: string | null;
   preimage: string | null;
   simulated: boolean;
+  testFunds?: boolean;
   receipt: NostrEvent | null;
   createdAt: string;
 }
@@ -208,6 +215,7 @@ export interface AttestationDetail {
   payoutRun: {
     status: 'planned' | 'no_payout' | 'invalid';
     simulated: boolean;
+    testFunds?: boolean;
     policies: number;
     dueSat: number;
     planSat: number;
@@ -233,6 +241,7 @@ export interface PublicPayout {
   preimage: string | null;
   paidAt: string | null;
   simulated: boolean;
+  testFunds?: boolean;
 }
 
 export interface SponsorInvoice {
@@ -248,6 +257,7 @@ export interface SponsorInvoice {
   expiresAt: string | null;
   paidAt: string | null;
   simulated: boolean;
+  testFunds?: boolean;
   invoice?: string;
   coverWeeks?: number | null;
 }
@@ -369,6 +379,7 @@ export interface AdminDeposit {
   expiresAt: string | null;
   paidAt: string | null;
   simulated: boolean;
+  testFunds?: boolean;
 }
 
 export interface AdminPayout {
@@ -387,6 +398,7 @@ export interface AdminPayout {
   paymentHash: string | null;
   paidAt: string | null;
   simulated: boolean;
+  testFunds?: boolean;
   createdAt: string;
 }
 
@@ -398,10 +410,18 @@ export interface AdminAlert {
   detail: Record<string, string | number | null>;
 }
 
+export interface AdminWallet {
+  kind: string;
+  simulated: boolean;
+  testFunds: boolean;
+  demoPay: DemoPay;
+  network: string;
+}
+
 export interface AdminSession {
   csrfToken: string;
   expiresAt: string;
-  wallet?: { kind: string; simulated: boolean; network: string };
+  wallet?: AdminWallet;
 }
 
 export interface PolicySettings {
@@ -416,7 +436,7 @@ export interface AdminSettings {
   policy: PolicySettings;
   defaults: PolicySettings;
   sites: { id: string; name: string; thresholdM: number; enabled: boolean; updatedAt: string }[];
-  wallet: { kind: string; simulated: boolean; network: string };
+  wallet: AdminWallet;
 }
 
 export interface ReplayResult {

@@ -1,7 +1,7 @@
 import { getSite } from '@ndox/shared';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'wouter';
-import { Badge, ErrorState, PageTitle, Skeleton } from '../components/ui';
+import { ErrorState, MoneyBadge, PageTitle, Skeleton } from '../components/ui';
 import { useI18n } from '../i18n';
 import type { SponsorInvoice } from '../lib/api';
 import { fmtDate, fmtDateTime, fmtFcfa, fmtSat } from '../lib/format';
@@ -45,7 +45,7 @@ export default function SponsorReceipt({ paymentHash }: { paymentHash: string })
     <>
       {back}
       <PageTitle>{t.sponsor.receiptTitle}</PageTitle>
-      {d.simulated && <Badge kind="simulated" className="mb-4" />}
+      <MoneyBadge simulated={d.simulated} testFunds={d.testFunds} className="mb-4" />
       <dl className="divide-y divide-line rounded-card border border-line bg-surface px-4">
         {rows.map(([k, v]) => (
           <div key={k} className="flex flex-wrap justify-between gap-2 py-3">

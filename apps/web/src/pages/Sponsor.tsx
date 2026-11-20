@@ -4,7 +4,7 @@ import { useEffect, useId, useState, type ReactNode } from 'react';
 import { npubEncode } from 'nostr-tools/nip19';
 import { InvoiceQR } from '../components/InvoiceQR';
 import { useToast } from '../components/Toast';
-import { Badge, Button, ICON, LinkButton, PageTitle } from '../components/ui';
+import { Badge, Button, ICON, LinkButton, MoneyBadge, PageTitle } from '../components/ui';
 import { useI18n } from '../i18n';
 import { api, ApiError, type Meta, type SponsorInvoice } from '../lib/api';
 import { fmtDate, fmtEurFromFcfa, fmtFcfa } from '../lib/format';
@@ -72,8 +72,9 @@ export default function Sponsor() {
         `/api/sponsor/invoice/${invoice.paymentHash}/simulate`,
       );
       setInvoice((cur) => (cur ? { ...cur, ...v } : cur));
-    } catch {
-      toast(t.sponsor.errors.generic, 'error');
+    } catch (e) {
+      const failed = e instanceof ApiError && e.code === 'test_payment_failed';
+      toast(failed ? t.sponsor.errors.test_payment_failed : t.sponsor.errors.generic, 'error');
     } finally {
       setSimulating(false);
     }
@@ -84,7 +85,7 @@ export default function Sponsor() {
       <>
         <PageTitle>{t.sponsor.thanksTitle}</PageTitle>
         <div className="flex flex-wrap items-center gap-2">
-          {invoice.simulated && <Badge kind="simulated" />}
+          <MoneyBadge simulated={invoice.simulated} testFunds={invoice.testFunds} />
         </div>
         <p className="mt-3 text-lg text-ink" data-testid="sponsor-thanks">
           {invoice.crew
@@ -121,9 +122,15 @@ export default function Sponsor() {
             invoice={invoice.invoice ?? ''}
             status={invoice.status}
             amount={fmtFcfa(invoice.amountFcfa, lang)}
-            simulated={invoice.simulated}
-            onSimulate={simulate}
-            simulating={simulating}
+            demoPay={
+              invoice.simulated
+                ? 'simulate'
+                : invoice.testFunds && meta.data?.demoPay === 'test'
+                  ? 'test'
+                  : null
+            }
+            onDemoPay={() => void simulate()}
+            paying={simulating}
           />
           {invoice.crew && invoice.coverWeeks ? (
             <p className="mt-3 text-sm text-muted">

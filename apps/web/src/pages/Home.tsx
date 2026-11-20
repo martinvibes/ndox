@@ -1,6 +1,6 @@
 import { HandCoins, ShieldCheck } from 'lucide-react';
 import { StatusCard } from '../components/StatusCard';
-import { Badge, ErrorState, ICON, LinkButton, Skeleton, StatTile } from '../components/ui';
+import { ErrorState, ICON, LinkButton, MoneyBadge, Skeleton, StatTile } from '../components/ui';
 import { useI18n } from '../i18n';
 import type { Meta, Pool, Today } from '../lib/api';
 import { fmtDate, fmtFcfa, fmtPct, fmtTime, satToFcfaDisplay } from '../lib/format';
@@ -112,7 +112,7 @@ function PoolSection({ pool }: { pool: Pool | undefined }) {
         <h2 id="pool" className="text-lg font-semibold text-ink">
           {t.home.poolTitle}
         </h2>
-        {pool.wallet.simulated && <Badge kind="simulated" />}
+        <MoneyBadge simulated={pool.wallet.simulated} testFunds={pool.wallet.testFunds} />
       </div>
       <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-4">
         <StatTile

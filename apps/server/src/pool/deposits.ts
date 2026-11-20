@@ -29,6 +29,21 @@ export interface MoneyCtx {
   pricing: Pricing;
   settings: () => PolicySettings;
   log: Log;
+  /**
+   * The pool is an NWC wallet on a test network (sats without value): it may pay demo policies,
+   * which a mainnet wallet never does.
+   */
+  testFunds?: boolean;
+  /**
+   * Test networks only: a second wallet that pays a pending invoice when someone presses
+   * "Payer avec le portefeuille de test" (a real Lightning payment of test sats).
+   */
+  testPayer?: Wallet | null;
+}
+
+/** May this pool pay demo policies? Simulated wallets and test-funds wallets may; mainnet never. */
+export function paysDemoPolicies(ctx: Pick<MoneyCtx, 'wallet' | 'testFunds'>): boolean {
+  return ctx.wallet.simulated || ctx.testFunds === true;
 }
 
 export type DepositRow = typeof deposits.$inferSelect;

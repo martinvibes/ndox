@@ -42,11 +42,18 @@ const fr = {
     demoHint: 'Équipage de démonstration, pas un vrai pêcheur.',
     forecast: 'Prévision',
     forecastHint: 'Prévision non signée, à titre indicatif.',
+    test: 'Fonds de test',
+    testHint: 'Vrai paiement Lightning sur un réseau de test : ces sats n’ont aucune valeur.',
   },
   footer: {
     source: 'Code source (MIT)',
     realVsSim: 'Ce qui est réel, ce qui est simulé',
     data: 'Données de houle : Open-Meteo (ECMWF, NCEP)',
+    network: {
+      simulated: 'Paiements simulés : aucun argent réel',
+      test: 'Réseau Lightning de test : les sats n’ont aucune valeur',
+      mainnet: 'Paiements : Bitcoin Lightning',
+    },
   },
   home: {
     seaToday: (date: string) => `La mer aujourd’hui, ${date}`,
@@ -190,6 +197,8 @@ const fr = {
     create: 'Créer la demande de paiement',
     creating: 'Création…',
     scan: 'Scannez avec votre portefeuille Lightning',
+    scanTest:
+      'Facture du réseau de test : payez-la avec le bouton ci-dessous ou un portefeuille de test, pas avec de vrais sats.',
     openWallet: 'Ouvrir dans mon portefeuille',
     copyInvoice: 'Copier la demande de paiement',
     waiting: 'En attente du paiement…',
@@ -197,6 +206,8 @@ const fr = {
     expired: 'Demande expirée. Créez-en une nouvelle.',
     simulate: 'Simuler le paiement',
     simulateHint: 'Démonstration : aucun argent réel ne circule.',
+    testPay: 'Payer avec le portefeuille de test',
+    testPayHint: 'Un vrai paiement Lightning, avec des sats sans valeur.',
     thanksTitle: 'Merci !',
     thanksPool: (a: string) => `${a} ont rejoint le fonds commun.`,
     thanksCrew: (a: string, crew: string) => `${a} couvrent ${crew}.`,
@@ -210,6 +221,7 @@ const fr = {
     errors: {
       rate_limited: 'Trop de demandes. Réessayez dans quelques minutes.',
       wallet_unavailable: 'Le portefeuille du fonds ne répond pas. Réessayez plus tard.',
+      test_payment_failed: 'Le portefeuille de test n’a pas pu payer. Réessayez dans un instant.',
       unknown_crew: 'Cet équipage n’est plus inscrit.',
       generic: 'La demande n’a pas abouti. Réessayez.',
     },
