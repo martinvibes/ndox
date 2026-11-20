@@ -215,6 +215,32 @@ describe('crew status: /api/status/:code and /e/:code', () => {
       last = (await s.app.inject({ url: '/api/status/K22222' })).statusCode;
     expect(last).toBe(429);
   });
+
+  it('behind one proxy (TRUST_PROXY=1), limits each visitor; a forged X-Forwarded-For does not help', async () => {
+    const s = await setup({ env: { TRUST_PROXY: '1' } });
+    const get = (xff: string) =>
+      s.app.inject({ url: '/api/status/K22222', headers: { 'x-forwarded-for': xff } });
+    for (let i = 0; i < 30; i++) expect((await get('203.0.113.7')).statusCode).toBe(404);
+    expect((await get('203.0.113.7')).statusCode).toBe(429);
+    // another visitor behind the same proxy is not affected
+    expect((await get('198.51.100.9')).statusCode).toBe(404);
+    // the proxy appends the real address: a forged first entry changes nothing
+    expect((await get('10.9.9.9, 203.0.113.7')).statusCode).toBe(429);
+  });
+
+  it('without TRUST_PROXY, ignores X-Forwarded-For entirely', async () => {
+    const s = await setup();
+    for (let i = 0; i < 30; i++)
+      await s.app.inject({
+        url: '/api/status/K22222',
+        headers: { 'x-forwarded-for': `10.0.0.${i}` },
+      });
+    const res = await s.app.inject({
+      url: '/api/status/K22222',
+      headers: { 'x-forwarded-for': '10.0.0.99' },
+    });
+    expect(res.statusCode).toBe(429);
+  });
 });
 
 describe('USSD menu (Africa’s Talking format)', () => {
