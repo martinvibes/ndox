@@ -135,7 +135,9 @@ export function EmptyState({
 }) {
   return (
     <div className="rounded-card border border-dashed border-line px-6 py-10 text-center">
-      <Icon {...ICON} />
+      <span className="flex justify-center text-muted">
+        <Icon {...ICON} />
+      </span>
       <p className="mt-3 font-medium text-ink">{title}</p>
       {body && <p className="mx-auto mt-1 max-w-[46ch] text-sm text-muted">{body}</p>}
       {action && <div className="mt-4">{action}</div>}

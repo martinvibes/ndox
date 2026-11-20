@@ -206,7 +206,7 @@ function ForecastRow({ site, name }: { site: string; name: string }) {
           {o.days.slice(0, 7).map((d) => (
             <li
               key={d.date}
-              className={`min-w-0 rounded-btn border px-1 py-1.5 text-center ${CELL[d.outcome]}`}
+              className={`min-w-0 rounded-md border px-1 py-1.5 text-center ${CELL[d.outcome]}`}
             >
               <span className="block truncate text-xs">{fmtDate(d.date, lang, 'day')}</span>
               <span className="tabular block text-sm font-semibold">

@@ -214,7 +214,7 @@ export default function Sponsor() {
               {PRESETS.map((p) => (
                 <label
                   key={p}
-                  className={`flex min-h-16 cursor-pointer flex-col items-center justify-center rounded-btn border px-2 py-2 text-center has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ocean ${
+                  className={`flex min-h-16 cursor-pointer flex-col items-center justify-center rounded-card border px-2 py-2 text-center has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ocean ${
                     !custom && amount === p
                       ? 'border-ocean bg-ocean-50 text-ocean'
                       : 'border-line bg-surface text-ink hover:border-ocean'

@@ -1,4 +1,5 @@
-import { HandCoins, MessageSquareText, ShieldCheck, Smartphone } from 'lucide-react';
+import { HandCoins, History, MessageSquareText, ShieldCheck, Smartphone } from 'lucide-react';
+import { Link } from 'wouter';
 import { SeaLine } from '../components/SeaLine';
 import { RulesExplainer } from '../components/RulesExplainer';
 import { SeaBulletin } from '../components/SeaBulletin';
@@ -115,6 +116,18 @@ export default function Home() {
                 ))
               : !today.error && [0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-[232px]" />)}
           </div>
+          {today.data && attested.length === 0 && (
+            <p className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-muted">
+              {t.home.replayHint}
+              <Link
+                href="/verifier?tab=rejeux"
+                className="inline-flex items-center gap-1 font-medium text-ocean underline-offset-4 hover:underline"
+              >
+                <History {...ICON} />
+                {t.home.replayLink}
+              </Link>
+            </p>
+          )}
         </div>
       </section>
 

@@ -62,6 +62,9 @@ const fr = {
     summaryCalm: 'Pas de danger attesté aujourd’hui.',
     summaryPending: (time: string) =>
       `Le résultat du jour n’est pas encore signé. L’oracle signe chaque matin à ${time}.`,
+    replayHint:
+      'En attendant le résultat signé, voyez une vraie journée d’alerte rejouée de bout en bout.',
+    replayLink: 'Voir une journée rejouée',
     attestedAt: (time: string) => `Attesté à ${time}`,
     verify: 'Vérifier',
     expectedAt: (time: string) => `Résultat attendu à ${time}`,
@@ -127,7 +130,7 @@ const fr = {
     explainTitle: 'Une question sur les règles ?',
     explainLead:
       'Les réponses viennent uniquement des règles appliquées par Ndox. Si elles ne répondent pas, la réponse est « Je ne sais pas. ».',
-    explainPlaceholder: 'Ex. : combien reçoit un équipage un jour de danger ?',
+    explainPlaceholder: 'Ex. : combien reçoit un équipage ?',
     explainAsk: 'Demander',
     explainAsking: 'Réponse en cours…',
     explainBy: (model: string) => `Réponse générée par IA (${model}) à partir des règles publiées.`,

@@ -14,7 +14,10 @@ import { useApi } from '../lib/useApi';
 
 export default function VerifyList() {
   const { t, lang } = useI18n();
-  const [replay, setReplay] = useState(false);
+  // `/verifier?tab=rejeux` opens on the replays (the home page links there before the first attestation).
+  const [replay, setReplay] = useState(
+    () => new URLSearchParams(window.location.search).get('tab') === 'rejeux',
+  );
   const list = useApi<{ items: AttestationSummary[] }>(
     `/api/attestations?limit=50&replay=${replay ? 1 : 0}`,
   );

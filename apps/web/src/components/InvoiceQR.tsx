@@ -50,7 +50,7 @@ export function InvoiceQR({
         <div className="relative shrink-0">
           <svg
             viewBox={`0 0 ${size} ${size}`}
-            className={`h-56 w-56 rounded-btn bg-white transition-opacity ${paid ? 'opacity-20' : ''}`}
+            className={`h-56 w-56 rounded-lg bg-white transition-opacity ${paid ? 'opacity-20' : ''}`}
             shapeRendering="crispEdges"
             role="img"
             aria-label={t.sponsor.scan}
