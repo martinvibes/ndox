@@ -101,6 +101,25 @@ const fr = {
     ctaSponsor: 'Soutenir un équipage',
     ctaVerify: 'Vérifier les preuves',
     ctaCrew: 'Mon équipage',
+    heroLead: (amount: string) =>
+      `Ndox est une caisse solidaire pour les pêcheurs artisanaux du Sénégal. Chaque matin, un oracle lit la houle prévue au large des quais. Quand la mer est trop dangereuse pour sortir, chaque équipage couvert reçoit ${amount} : il peut rester à terre sans perdre sa journée.`,
+    heroFacts: [
+      { value: '4', label: 'quais suivis, de Saint-Louis à Joal' },
+      { value: '2', label: 'modèles de vagues qui doivent être d’accord' },
+      { value: '05:15', label: 'GMT : résultat signé, publié sur Nostr' },
+    ],
+    smsExampleLabel: 'Exemple : le SMS reçu par un équipage un matin de danger',
+    smsExample:
+      "NDOX Kayar: mer dangereuse aujourd'hui (houle 2,8 m). 2 000 FCFA envoyes. Restez a terre. Code: K7Q2MD",
+    smsExampleNote: 'Le paiement arrive en même temps, avec sa preuve publique.',
+    seaCaption: (threshold: string) =>
+      `La règle tient en une ligne : si la houle maximale prévue entre 6 h et 18 h dépasse le seuil (${threshold} à Kayar) sur les deux modèles, la journée est déclarée dangereuse et la caisse paie.`,
+    howLead:
+      'Personne ne décide à la main. Tout est annoncé la veille, signé le matin et vérifiable par tous.',
+    howTimes: ['La veille', 'À l’aube', 'Juste après'],
+    ctaBandTitle: 'Couvrir un équipage pour une semaine',
+    ctaBandBody:
+      'Une coopérative, une diaspora, une entreprise : chacun peut payer la prime d’un équipage. Le paiement va à la caisse commune, et la preuve est publique.',
     bulletinTitle: (date: string) => `Bulletin de la mer, ${date}`,
     bulletinAi: (model: string) => `Rédigé par IA (${model}) à partir des attestations signées`,
     bulletinTemplate: 'Rédigé automatiquement à partir des attestations signées (sans IA)',

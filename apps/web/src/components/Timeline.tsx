@@ -177,7 +177,7 @@ export function Timeline({ result, thresholdM }: { result: ReplayResult; thresho
       body: (
         <>
           <p
-            className={`text-display leading-none font-bold tracking-tight uppercase ${OUTCOME_TEXT[r.outcome]}`}
+            className={`font-display text-display leading-none font-medium ${OUTCOME_TEXT[r.outcome]}`}
             data-testid="replay-outcome"
           >
             {t.outcome[r.outcome]}

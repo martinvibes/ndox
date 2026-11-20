@@ -12,9 +12,9 @@ import type { ApiError } from '../lib/api';
 export const ICON = { size: 20, strokeWidth: 1.75, 'aria-hidden': true } as const;
 
 const BTN_BASE =
-  'inline-flex min-h-11 items-center justify-center gap-2 rounded-btn px-4 text-base font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60';
+  'inline-flex min-h-11 items-center justify-center gap-2 rounded-btn px-5 text-base font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60';
 const BTN = {
-  primary: `${BTN_BASE} bg-ocean text-white hover:bg-[#094d78]`,
+  primary: `${BTN_BASE} bg-deep text-white hover:bg-ocean`,
   secondary: `${BTN_BASE} border border-line bg-surface text-ink hover:border-ocean hover:text-ocean`,
   ghost: `${BTN_BASE} text-ocean hover:bg-ocean-50`,
   danger: `${BTN_BASE} border border-danger/40 bg-surface text-danger hover:bg-danger-bg`,
@@ -169,9 +169,7 @@ export function Skeleton({ className = '' }: { className?: string }) {
 export function PageTitle({ children, lead }: { children: ReactNode; lead?: ReactNode }) {
   return (
     <header className="mb-8">
-      <h1 className="text-title font-semibold tracking-tight text-ink sm:text-display">
-        {children}
-      </h1>
+      <h1 className="text-title font-medium tracking-tight text-ink sm:text-display">{children}</h1>
       {lead && <p className="mt-3 max-w-[62ch] text-muted">{lead}</p>}
     </header>
   );
@@ -180,7 +178,7 @@ export function PageTitle({ children, lead }: { children: ReactNode; lead?: Reac
 export function SectionTitle({ children, aside }: { children: ReactNode; aside?: ReactNode }) {
   return (
     <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-      <h2 className="text-lg font-semibold text-ink">{children}</h2>
+      <h2 className="text-[1.375rem] font-medium text-ink">{children}</h2>
       {aside}
     </div>
   );

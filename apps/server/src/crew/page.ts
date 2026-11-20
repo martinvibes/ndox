@@ -31,11 +31,11 @@ const MONTHS = [
 const day = (iso: string) => `${Number(iso.slice(8, 10))} ${MONTHS[Number(iso.slice(5, 7)) - 1]}`;
 const dayTime = (iso: string) => `${day(iso)}, ${iso.slice(11, 16)} GMT`;
 
-const CSS = `:root{--bg:#f6f8fa;--s:#fff;--i:#0b1f33;--m:#5b6b7c;--l:#e3e8ee;--o:#0b5c8e;--c:#1f7a55;--cb:#e7f4ee;--d:#b42318;--db:#fdecea;--w:#b54708;--wb:#fef3e2}
+const CSS = `:root{--bg:#fff;--s:#fff;--i:#0f2a3d;--m:#5b6b78;--l:#e4eaef;--o:#0e5a80;--c:#1d7653;--cb:#e9f5ef;--d:#c0362c;--db:#fdeeec;--w:#a8580c;--wb:#fdf3e4;--y:#e0a21b}
 @media(prefers-color-scheme:dark){:root{--bg:#0b1520;--s:#11202e;--i:#e8eef4;--m:#9aabbc;--l:#22364a;--o:#5fb0e6;--c:#5cc79a;--cb:#10301f;--d:#f2877d;--db:#3a1512;--w:#f0a35e;--wb:#3a2610}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--i);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 main{max-width:30rem;margin:0 auto;padding:1.25rem 1rem 2rem}a{color:var(--o)}
-h1{font-size:1.5rem;line-height:1.2;margin:.25rem 0 0}.m{color:var(--m);font-size:.875rem;margin:0}
+h1,h2{font-family:Georgia,'Times New Roman',serif;font-weight:500}h1{font-size:1.75rem;line-height:1.2;margin:.25rem 0 0}main>p.m:first-child{border-top:3px solid var(--y);padding-top:.75rem}.m{color:var(--m);font-size:.875rem;margin:0}
 .st{margin:1.25rem 0;padding:1rem 1.1rem;border-radius:.75rem;border:1px solid var(--l);background:var(--s)}
 .st b{display:block;font-size:1.25rem;line-height:1.3}.st p{margin:.35rem 0 0}
 .ok{background:var(--cb);border-color:transparent}.ok b{color:var(--c)}
@@ -45,11 +45,11 @@ h2{font-size:1rem;margin:1.5rem 0 .5rem}ul{list-style:none;margin:0;padding:0;bo
 li{display:flex;justify-content:space-between;gap:1rem;padding:.6rem 0;border-bottom:1px solid var(--l)}
 li span:last-child{text-align:right}.tag{display:inline-block;font-size:.75rem;padding:0 .4rem;border-radius:.3rem;background:var(--wb);color:var(--w);margin-left:.35rem;vertical-align:middle}
 footer{margin-top:2rem;font-size:.8125rem;color:var(--m)}form{display:flex;gap:.5rem;margin-top:1rem}
-input{flex:1;font:inherit;padding:.6rem .75rem;border:1px solid var(--l);border-radius:.5rem;background:var(--s);color:var(--i);text-transform:uppercase;letter-spacing:.1em}
-button{font:inherit;padding:.6rem 1rem;border:0;border-radius:.5rem;background:var(--o);color:#fff}`;
+input{flex:1;font:inherit;padding:.6rem .75rem;border:1px solid var(--l);border-radius:999px;background:var(--s);color:var(--i);text-transform:uppercase;letter-spacing:.1em}
+button{font:inherit;padding:.6rem 1.1rem;border:0;border-radius:999px;background:#0a3a55;color:#fff}`;
 
 function shell(title: string, body: string): string {
-  return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${CSS}</style></head><body><main>${body}<footer>Ndox · assurance mer agitée des pêcheurs, payée en Lightning. <a href="/">ndox</a> · <a href="/verifier">vérifier les preuves</a></footer></main></body></html>`;
+  return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${CSS}</style></head><body><main>${body}<footer>Ndox : quand la mer dit non, Ndox paie. <a href="/">Accueil</a> · <a href="/verifier">Vérifier les preuves</a></footer></main></body></html>`;
 }
 
 export function codeFormPage(message?: string): string {

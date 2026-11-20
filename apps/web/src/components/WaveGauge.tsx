@@ -53,7 +53,7 @@ export function WaveGauge({ models, thresholdM }: { models: ModelValue[]; thresh
             );
           })}
           <div
-            className="pointer-events-none absolute -top-1 -bottom-1 border-l-[1.5px] border-dashed border-ink"
+            className="pointer-events-none absolute -top-1 -bottom-1 border-l-2 border-dashed border-saffron"
             style={{ left: `${tx}%` }}
             aria-hidden
           />

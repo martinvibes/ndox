@@ -1,34 +1,46 @@
+@import '@fontsource-variable/newsreader';
 @import 'tailwindcss';
 
-/* Design tokens (docs/BRIEF.md §10.2). Light mode ships first; dark tokens are ready below. */
+/*
+ * Design tokens. White, calm, Atlantic: deep sea ink on white, one ocean blue for action, and a
+ * single saffron borrowed from the painted pirogues of Kayar and Joal, used only for the
+ * threshold line and the brand mark. Headings in Newsreader, interface in Inter.
+ */
 @theme {
-  --color-bg: #f6f8fa;
+  --color-bg: #ffffff;
   --color-surface: #ffffff;
-  --color-ink: #0b1f33;
-  --color-muted: #5b6b7c;
-  --color-line: #e3e8ee;
-  --color-ocean: #0b5c8e;
-  --color-ocean-50: #e8f2f9;
-  --color-calm: #1f7a55;
-  --color-calm-bg: #e7f4ee;
-  --color-danger: #b42318;
-  --color-danger-bg: #fdecea;
-  --color-warn: #b54708;
-  --color-warn-bg: #fef3e2;
+  --color-mist: #f3f7fa;
+  --color-ink: #0f2a3d;
+  --color-muted: #5b6b78;
+  --color-line: #e4eaef;
+  --color-ocean: #0e5a80;
+  --color-ocean-50: #eaf3f8;
+  --color-deep: #0a3a55;
+  --color-saffron: #e0a21b;
+  --color-saffron-50: #fdf6e3;
+  --color-calm: #1d7653;
+  --color-calm-bg: #e9f5ef;
+  --color-danger: #c0362c;
+  --color-danger-bg: #fdeeec;
+  --color-warn: #a8580c;
+  --color-warn-bg: #fdf3e4;
 
   --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Newsreader Variable', 'Newsreader', Georgia, 'Times New Roman', serif;
 
   --text-sm: 0.875rem; /* 14 */
   --text-base: 1rem; /* 16 */
   --text-lg: 1.25rem; /* 20 */
-  --text-title: 1.75rem; /* 28 */
-  --text-title--line-height: 2.125rem;
-  --text-display: 2.5rem; /* 40 */
-  --text-display--line-height: 2.875rem;
+  --text-title: 1.875rem; /* 30 */
+  --text-title--line-height: 2.25rem;
+  --text-display: 2.75rem; /* 44 */
+  --text-display--line-height: 3rem;
+  --text-hero: 3.5rem; /* 56 */
+  --text-hero--line-height: 3.75rem;
 
-  --radius-card: 12px;
-  --radius-btn: 8px;
-  --shadow-card: 0 1px 2px rgba(11, 31, 51, 0.06);
+  --radius-card: 14px;
+  --radius-btn: 999px;
+  --shadow-card: 0 1px 2px rgba(15, 42, 61, 0.04), 0 8px 24px -12px rgba(15, 42, 61, 0.12);
 }
 
 /* Dark tokens: ready, not enabled by default. */
@@ -60,6 +72,15 @@
     line-height: 1.5;
     min-height: 100dvh;
   }
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    letter-spacing: -0.01em;
+  }
+  ::selection {
+    background: var(--color-saffron-50);
+  }
   :focus-visible {
     outline: 2px solid var(--color-ocean);
     outline-offset: 2px;
@@ -68,4 +89,19 @@
 
 @utility tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/* The home page's sea line drifts slowly; still for anyone who prefers less motion. */
+@keyframes sea-drift {
+  to {
+    transform: translateX(-1200px);
+  }
+}
+.sea-drift {
+  animation: sea-drift 48s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sea-drift {
+    animation: none;
+  }
 }

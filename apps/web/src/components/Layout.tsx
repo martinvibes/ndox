@@ -8,28 +8,32 @@ import { useApi } from '../lib/useApi';
 
 const REPO = 'https://github.com/martinvibes/ndox';
 
+/** The mark: a pirogue's painted hull stripe riding two swells. */
 export function Wordmark() {
   return (
-    <span className="inline-flex items-center gap-2 text-lg font-bold tracking-tight text-ink">
-      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden>
-        <rect width="28" height="28" rx="8" fill="var(--color-ocean)" />
+    <span className="inline-flex items-center gap-2.5 text-ink">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden>
+        <circle cx="15" cy="15" r="15" fill="var(--color-deep)" />
+        <path d="M7 12.5h16l-2.2 3.2H9.2z" fill="var(--color-saffron)" />
         <path
-          d="M5 16c2.2 0 2.2-2.5 4.5-2.5S11.7 16 14 16s2.2-2.5 4.5-2.5S20.8 16 23 16"
+          d="M5 19.5c2.5 0 2.5-2.2 5-2.2s2.5 2.2 5 2.2 2.5-2.2 5-2.2 2.5 2.2 5 2.2"
           fill="none"
           stroke="#fff"
-          strokeWidth="2"
+          strokeWidth="1.8"
           strokeLinecap="round"
         />
         <path
-          d="M5 20.5c2.2 0 2.2-2.5 4.5-2.5s2.2 2.5 4.5 2.5 2.2-2.5 4.5-2.5 2.3 2.5 4.5 2.5"
+          d="M7 23.5c2.2 0 2.2-1.8 4.4-1.8s2.2 1.8 4.4 1.8 2.2-1.8 4.4-1.8 2.2 1.8 2.8 1.8"
           fill="none"
           stroke="#fff"
-          strokeOpacity=".55"
-          strokeWidth="2"
+          strokeOpacity=".5"
+          strokeWidth="1.6"
           strokeLinecap="round"
         />
       </svg>
-      Ndox
+      <span className="font-display text-[1.45rem] leading-none font-semibold tracking-tight">
+        Ndox
+      </span>
     </span>
   );
 }
@@ -41,7 +45,7 @@ export function LangToggle() {
     <div
       role="group"
       aria-label={t.lang.label}
-      className="flex rounded-btn border border-line p-0.5"
+      className="flex rounded-full border border-line bg-surface p-0.5"
     >
       {opts.map((l) => (
         <button
@@ -50,8 +54,8 @@ export function LangToggle() {
           lang={l}
           aria-pressed={lang === l}
           onClick={() => setLang(l)}
-          className={`min-h-9 min-w-11 rounded-[6px] px-2 text-sm font-medium uppercase ${
-            lang === l ? 'bg-ink text-white' : 'text-muted hover:text-ink'
+          className={`min-h-9 min-w-11 rounded-full px-2.5 text-sm font-medium ${
+            lang === l ? 'bg-deep text-white' : 'text-muted hover:text-ink'
           }`}
         >
           {l}
@@ -69,8 +73,8 @@ function NavLink({ href, icon, children }: { href: string; icon: ReactNode; chil
     <Link
       href={href}
       aria-current={active ? 'page' : undefined}
-      className={`flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-btn px-1 text-xs font-medium sm:min-h-11 sm:flex-none sm:flex-row sm:gap-1.5 sm:px-3 sm:text-sm ${
-        active ? 'bg-ocean-50 text-ocean' : 'text-muted hover:text-ink'
+      className={`flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-full px-1 text-xs font-medium sm:min-h-10 sm:flex-none sm:flex-row sm:gap-1.5 sm:px-3.5 sm:text-sm ${
+        active ? 'bg-ocean-50 text-deep' : 'text-muted hover:text-ink'
       }`}
     >
       {icon}
@@ -83,6 +87,9 @@ const I = { size: 18, strokeWidth: 1.75, 'aria-hidden': true } as const;
 
 export function PublicLayout({ children }: { children: ReactNode }) {
   const { t } = useI18n();
+  const [loc] = useLocation();
+  // the home page tells the story across the full width; reading pages stay narrow
+  const width = loc === '/' ? 'max-w-[1080px]' : 'max-w-[760px]';
   return (
     <div className="flex min-h-dvh flex-col">
       <a
@@ -91,8 +98,8 @@ export function PublicLayout({ children }: { children: ReactNode }) {
       >
         {t.common.skip}
       </a>
-      <header className="border-b border-line bg-surface">
-        <div className="mx-auto flex max-w-[720px] flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2">
+      <header className="sticky top-0 z-30 border-b border-line bg-surface/90 backdrop-blur">
+        <div className="mx-auto flex max-w-[1080px] flex-wrap items-center gap-x-6 gap-y-1 px-4 py-2.5 sm:px-6">
           <Link href="/" className="-ml-1 rounded-btn p-1" aria-label="Ndox">
             <Wordmark />
           </Link>
@@ -101,7 +108,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
           </div>
           <nav
             aria-label="Ndox"
-            className="-mx-1 flex w-full gap-1 overflow-x-auto sm:mx-0 sm:w-auto sm:flex-1"
+            className="-mx-1 flex w-full gap-1 overflow-x-auto sm:mx-0 sm:w-auto sm:flex-1 sm:justify-center"
           >
             <NavLink href="/" icon={<Waves {...I} />}>
               {t.nav.today}
@@ -118,7 +125,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
           </nav>
         </div>
       </header>
-      <main id="main" className="mx-auto w-full max-w-[720px] flex-1 px-4 py-8 sm:py-12">
+      <main id="main" className={`mx-auto w-full ${width} flex-1 px-4 py-8 sm:px-6 sm:py-14`}>
         {children}
       </main>
       <Footer />
@@ -138,23 +145,43 @@ export function Footer() {
         ? t.footer.network.test
         : t.footer.network.mainnet;
   return (
-    <footer className="border-t border-line">
-      <div className="mx-auto flex max-w-[720px] flex-col gap-2 px-4 py-6 text-sm text-muted sm:flex-row sm:flex-wrap sm:gap-x-6">
-        <span className="font-medium text-ink">{t.common.tagline}</span>
-        <a
-          className="hover:text-ink hover:underline"
-          href={`${REPO}/blob/main/docs/REAL_VS_SIMULATED.md`}
-        >
-          {t.footer.realVsSim}
-        </a>
-        <a className="hover:text-ink hover:underline" href={REPO}>
-          {t.footer.source}
-        </a>
-        <Link className="hover:text-ink hover:underline" href="/conseil">
-          {t.nav.council}
-        </Link>
-        <span>{t.footer.data}</span>
-        {network && <span data-testid="footer-network">{network}</span>}
+    <footer className="mt-16 border-t border-line bg-mist">
+      <div className="mx-auto grid max-w-[1080px] gap-8 px-4 py-10 sm:grid-cols-[1.4fr_1fr] sm:px-6">
+        <div>
+          <Wordmark />
+          <p className="mt-3 max-w-[40ch] font-display text-lg text-ink">{t.common.tagline}</p>
+          {network && (
+            <p data-testid="footer-network" className="mt-3 text-sm text-muted">
+              {network}
+            </p>
+          )}
+        </div>
+        <ul className="grid content-start gap-2 text-sm text-muted">
+          <li>
+            <a
+              className="hover:text-ink hover:underline"
+              href={`${REPO}/blob/main/docs/REAL_VS_SIMULATED.md`}
+            >
+              {t.footer.realVsSim}
+            </a>
+          </li>
+          <li>
+            <a className="hover:text-ink hover:underline" href={REPO}>
+              {t.footer.source}
+            </a>
+          </li>
+          <li>
+            <a className="hover:text-ink hover:underline" href="/e">
+              {t.home.ctaCrew}
+            </a>
+          </li>
+          <li>
+            <Link className="hover:text-ink hover:underline" href="/conseil">
+              {t.nav.council}
+            </Link>
+          </li>
+          <li>{t.footer.data}</li>
+        </ul>
       </div>
     </footer>
   );

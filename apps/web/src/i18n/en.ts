@@ -97,6 +97,25 @@ const en: Messages = {
     ctaSponsor: 'Support a crew',
     ctaVerify: 'Check the proofs',
     ctaCrew: 'My crew',
+    heroLead: (amount: string) =>
+      `Ndox is a solidarity pool for Senegal's artisanal fishers. Every morning an oracle reads the forecast swell off the landing beaches. When the sea is too dangerous to go out, every covered crew receives ${amount}, so it can stay ashore without losing the day.`,
+    heroFacts: [
+      { value: '4', label: 'landing beaches, from Saint-Louis to Joal' },
+      { value: '2', label: 'wave models that must agree' },
+      { value: '05:15', label: 'GMT: result signed and published on Nostr' },
+    ],
+    smsExampleLabel: 'Example: the SMS a crew gets on a danger morning',
+    smsExample:
+      "NDOX Kayar: mer dangereuse aujourd'hui (houle 2,8 m). 2 000 FCFA envoyes. Restez a terre. Code: K7Q2MD",
+    smsExampleNote: 'The payment arrives at the same time, with its public proof.',
+    seaCaption: (threshold: string) =>
+      `The rule fits on one line: if the highest swell forecast between 06:00 and 18:00 crosses the threshold (${threshold} at Kayar) on both models, the day is declared dangerous and the pool pays.`,
+    howLead:
+      'Nobody decides by hand. Everything is announced the day before, signed in the morning and checkable by anyone.',
+    howTimes: ['The day before', 'At dawn', 'Right after'],
+    ctaBandTitle: 'Cover a crew for a week',
+    ctaBandBody:
+      "A cooperative, the diaspora, a company: anyone can pay a crew's premium. The money goes to the common pool, and the proof is public.",
     bulletinTitle: (date: string) => `Sea bulletin, ${date}`,
     bulletinAi: (model: string) => `Written by AI (${model}) from the signed attestations`,
     bulletinTemplate: 'Written automatically from the signed attestations (no AI)',
