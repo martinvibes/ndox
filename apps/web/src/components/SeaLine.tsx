@@ -5,7 +5,7 @@
  */
 const W = 1200;
 const H = 150;
-const T = 52; // threshold height (y)
+const T = 62; // threshold height (y): about a fifth of the swell crosses it
 
 function wave(): { line: string; area: string } {
   const pts: string[] = [];
