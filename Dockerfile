@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1.7
 # ---- build ---------------------------------------------------------------
 FROM node:22-bookworm-slim AS build
 ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH CI=true
@@ -14,7 +13,7 @@ COPY packages/oracle/package.json packages/oracle/
 COPY packages/shared/package.json packages/shared/
 COPY apps/server/package.json apps/server/
 COPY apps/web/package.json apps/web/
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 COPY . .
 RUN pnpm --filter @ndox/web build \
@@ -39,8 +38,9 @@ COPY --from=build /repo/data/seed ./seed
 COPY --from=build /repo/apps/server/drizzle ./drizzle
 
 RUN mkdir -p /data && chown node:node /data
+# /data is a volume: docker-compose names it, Railway attaches one (Railway: RAILWAY_RUN_UID=0,
+# its volumes are owned by root).
 USER node
-VOLUME ["/data"]
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
   CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||8080)+'/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
