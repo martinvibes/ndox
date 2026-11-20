@@ -22,7 +22,7 @@ import { RateLimiter } from '../lib/ratelimit.js';
 import { isoSeconds } from '../lib/time.js';
 import { JobError } from '../oracle/jobs.js';
 import { runReplay } from '../oracle/replay.js';
-import { processPayout } from '../payouts/engine.js';
+import { paidTodaySatFor, processPayout } from '../payouts/engine.js';
 import { payReplay } from '../payouts/replay.js';
 import { CrewInputError, crewView, enrolCrew } from '../pool/crews.js';
 import {
@@ -456,6 +456,19 @@ export function registerAdminRoutes(app: FastifyInstance, s: Services): void {
           .regex(/^x[0-9a-f]{12}$/)
           .safeParse((req.params as { id?: unknown }).id);
         if (!id.success) return bad(reply);
+        // A failed payout does not count against the daily cap, so the retry checks it again
+        // (no await between this check and the update: two retries cannot both slip under it).
+        const failed = db
+          .select({ amountSat: payouts.amountSat })
+          .from(payouts)
+          .where(and(eq(payouts.id, id.data), eq(payouts.status, 'failed')))
+          .get();
+        if (
+          failed &&
+          paidTodaySatFor(db, s.wallet.kind, now()) + failed.amountSat >
+            ctx.settings().dailyPayoutCapSats
+        )
+          return reply.code(409).send({ error: 'daily_cap' });
         const res = db
           .update(payouts)
           .set({

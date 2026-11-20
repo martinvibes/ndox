@@ -36,7 +36,8 @@ const EnvSchema = z.object({
   NETWORK_LABEL: z.enum(['mainnet', 'mutinynet', 'regtest', 'test']).default('mainnet'),
   TEST_PAYER_NWC_URL: z.string().startsWith('nostr+walletconnect://').optional(),
   TEST_FAUCET_URL: z.url().default('https://faucet.nwc.dev'),
-  DAILY_PAYOUT_CAP_SATS: z.coerce.number().int().min(0).default(20_000),
+  /** Default: 20 000 sats with a real wallet (nwc); 250 000 with the simulated one, so demo days pay in full. */
+  DAILY_PAYOUT_CAP_SATS: z.coerce.number().int().min(0).optional(),
   RESERVE_FLOOR_SATS: z.coerce.number().int().min(0).default(0),
   NOSTR_RELAYS: z
     .string()
@@ -68,6 +69,8 @@ const EnvSchema = z.object({
   AT_CALLBACK_TOKEN: z.string().min(16).optional(),
   HEALTHCHECK_URL: z.url().optional(),
   SCHEDULER: bool.default(true),
+  /** Enrol demo crews on the first start (simulated wallet only; the Docker quick start). */
+  SEED_DEMO: bool.default(false),
   TRUST_PROXY: z.coerce.number().int().min(0).max(5).default(0),
   BACKUP_KEEP: z.coerce.number().int().min(1).max(60).default(7),
   WEB_DIST_DIR: z.string().min(1).optional(),
@@ -138,6 +141,7 @@ export interface Config {
   };
   healthcheckUrl: string | undefined;
   scheduler: boolean;
+  seedDemo: boolean;
   /**
    * Reverse proxies in front of the server (Railway: 1). The client address is then read from the
    * X-Forwarded-For entry that the outermost trusted proxy added, never from what the client sent.
@@ -228,7 +232,7 @@ export function loadConfig(
     testFunds: e.WALLET_MODE === 'nwc' && e.NETWORK_LABEL !== 'mainnet',
     testPayerNwcUrl: e.WALLET_MODE === 'nwc' ? e.TEST_PAYER_NWC_URL : undefined,
     testFaucetUrl: e.TEST_FAUCET_URL.replace(/\/+$/, ''),
-    dailyPayoutCapSats: e.DAILY_PAYOUT_CAP_SATS,
+    dailyPayoutCapSats: e.DAILY_PAYOUT_CAP_SATS ?? (e.WALLET_MODE === 'fake' ? 250_000 : 20_000),
     reserveFloorSats: e.RESERVE_FLOOR_SATS,
     relays: e.NOSTR_RELAYS,
     nostrPublish: e.NOSTR_PUBLISH,
@@ -247,6 +251,7 @@ export function loadConfig(
     },
     healthcheckUrl: e.HEALTHCHECK_URL,
     scheduler: e.SCHEDULER,
+    seedDemo: e.SEED_DEMO,
     trustProxy: e.TRUST_PROXY,
     backupKeep: e.BACKUP_KEEP,
     webDir: e.WEB_DIST_DIR ? resolve(e.WEB_DIST_DIR) : paths.webDir,

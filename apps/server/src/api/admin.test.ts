@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { describe, expect, it } from 'vitest';
-import { seedDemo } from '../admin/seed.js';
+import { seedDemo, seedDemoOnStart } from '../admin/seed.js';
 import { buildApp } from '../app.js';
 import { loadConfig } from '../config.js';
 import { silentLog } from '../lib/log.js';
@@ -394,6 +394,55 @@ describe('admin API: payouts, alerts, replay', () => {
     expect(retry.json()).toMatchObject({ id, step: 'paid', status: 'paid' });
     expect((await c.post(`/api/admin/payouts/${id}/retry`)).statusCode).toBe(409);
     expect((await c.get('/api/admin/alerts')).body).not.toContain('payout_failed');
+  });
+
+  it('seeds the demo crews on first start with a simulated wallet, once', async () => {
+    const { services } = await setup();
+    const first = await seedDemoOnStart(services);
+    expect(first).toMatchObject({ simulated: true });
+    expect(first!.covered).toBeGreaterThan(0);
+    expect(await seedDemoOnStart(services)).toBeNull();
+  });
+
+  it('refuses a retry that would go over the daily payout cap', async () => {
+    const { app, services, t, resolver } = await setup();
+    const c = client(app, await login(app));
+    const levy = (await c.post('/api/admin/deposits', { kind: 'levy', amountFcfa: 50_000 })).json<{
+      paymentHash: string;
+    }>();
+    await c.post(`/api/admin/deposits/${levy.paymentHash}/simulate`);
+    await seedDemo(services, { perSite: 1 });
+
+    resolver.broken = true;
+    t.set('2026-11-22T20:00:00Z');
+    await announce(services.live, 'kayar', '2026-11-23');
+    t.set('2026-11-23T05:00:00Z');
+    await fetchForecasts(services.live, 'kayar', '2026-11-23');
+    t.set('2026-11-23T05:15:00Z');
+    await attest(services.live, 'kayar', '2026-11-23');
+    for (let i = 0; i < 6; i++) {
+      t.set(`2026-11-23T${String(6 + i).padStart(2, '0')}:00:00Z`);
+      await runPayoutJobs(services.money);
+    }
+    const id = (await c.get('/api/admin/payouts?status=failed')).json<{
+      items: { id: string }[];
+    }>().items[0]!.id;
+    resolver.broken = false;
+
+    // A failed payout does not count against the cap, so a retry must check it again.
+    expect(
+      (await c.put('/api/admin/settings', { policy: { dailyPayoutCapSats: 0 } })).statusCode,
+    ).toBe(200);
+    const refused = await c.post(`/api/admin/payouts/${id}/retry`);
+    expect(refused.statusCode).toBe(409);
+    expect(refused.json()).toEqual({ error: 'daily_cap' });
+    expect(
+      (await c.get('/api/admin/payouts?status=failed')).json<{ items: { id: string }[] }>().items,
+    ).toHaveLength(1);
+
+    await c.put('/api/admin/settings', { policy: { dailyPayoutCapSats: 1_000_000 } });
+    const retry = await c.post(`/api/admin/payouts/${id}/retry`);
+    expect(retry.json()).toMatchObject({ id, status: 'paid' });
   });
 
   it('replays a past danger day and pays the demo crews from a simulated wallet', async () => {

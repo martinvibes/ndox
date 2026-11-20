@@ -1,3 +1,4 @@
+import { seedDemoOnStart } from './admin/seed.js';
 import { buildApp } from './app.js';
 import { loadConfig } from './config.js';
 import { openDb } from './db/index.js';
@@ -23,6 +24,10 @@ const db = openDb(config.databasePath, {
   defaultThresholdM: config.defaultThresholdM,
 });
 const services = createServices(config, db, log);
+if (config.seedDemo) {
+  const seeded = await seedDemoOnStart(services);
+  if (seeded) log.info('demo crews seeded (simulated wallet)', { covered: seeded.covered });
+}
 const app = await buildApp({ webDir: config.webDir, logger, services });
 
 let scheduler: Scheduler | undefined;

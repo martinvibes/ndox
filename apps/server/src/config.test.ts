@@ -103,6 +103,26 @@ describe('loadConfig', () => {
     expect(fake.testPayerNwcUrl).toBeUndefined();
   });
 
+  it('caps daily payouts at 20 000 sats on a real wallet by default, higher when simulated', async () => {
+    const nwc = {
+      DATABASE_PATH: tempDbPath(),
+      WALLET_MODE: 'nwc',
+      NWC_URL: 'nostr+walletconnect://pool?secret=a',
+      ADMIN_PASSWORD_HASH: await hashPassword('a long council passphrase'),
+      ORACLE_SECRET: hex('1'),
+      DEMO_ORACLE_SECRET: hex('2'),
+      POOL_SECRET: hex('3'),
+      SESSION_SECRET: hex('4'),
+      PII_ENCRYPTION_KEY: hex('5'),
+    };
+    expect(loadConfig(nwc).dailyPayoutCapSats).toBe(20_000);
+    expect(loadConfig({ ...nwc, DAILY_PAYOUT_CAP_SATS: '' }).dailyPayoutCapSats).toBe(20_000);
+    expect(loadConfig({ ...nwc, DAILY_PAYOUT_CAP_SATS: '60000' }).dailyPayoutCapSats).toBe(60_000);
+    const fake = { DATABASE_PATH: tempDbPath(), WALLET_MODE: 'fake' };
+    expect(loadConfig(fake).dailyPayoutCapSats).toBe(250_000);
+    expect(loadConfig({ ...fake, DAILY_PAYOUT_CAP_SATS: '1000' }).dailyPayoutCapSats).toBe(1000);
+  });
+
   it('rejects shared keys, invalid keys and malformed values', () => {
     const base = { DATABASE_PATH: tempDbPath() };
     expect(() => loadConfig({ ...base, ORACLE_SECRET: hex('1'), POOL_SECRET: hex('1') })).toThrow(

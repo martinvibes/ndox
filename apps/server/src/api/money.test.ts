@@ -72,7 +72,7 @@ describe('money API', () => {
       balanceSat: 0,
       availableSat: 0,
       outstandingSat: 0,
-      dailyCapSat: 20_000,
+      dailyCapSat: 250_000,
       payoutFcfa: 2000,
       price: { xofPerBtc: 38_006_805, source: 'mempool.space', stale: false },
       coverage: { ratio: null, exposureSat: 0 },

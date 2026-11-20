@@ -203,3 +203,13 @@ export async function seedDemo(s: Services, o: SeedDemoOptions = {}): Promise<Se
 
   return { enrolled, covered, premiumSat, levySat, simulated: !testPayer };
 }
+
+/**
+ * Docker quick start (`SEED_DEMO=true`): enrol the demo crews on the first start, so that a replay
+ * pays someone. Only with the simulated wallet, and only into a database with no crews yet.
+ */
+export async function seedDemoOnStart(s: Services): Promise<SeedDemoResult | null> {
+  if (!(s.wallet instanceof FakeWallet)) return null;
+  if (s.db.select({ id: crews.id }).from(crews).limit(1).get()) return null;
+  return seedDemo(s);
+}

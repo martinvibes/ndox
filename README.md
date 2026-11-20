@@ -24,7 +24,7 @@ docker compose exec ndox node dist/cli.js replay --site kayar --date 2026-02-27
 # or, from a dev checkout: pnpm install && pnpm replay --site kayar --date 2026-02-27
 ```
 
-You can also run it in the browser: open `/conseil/rejeu`, log in with `COUNCIL_PASSWORD` from your `.env`, and press **Rejouer**.
+The first start enrols demo crews (`SEED_DEMO`, simulated wallet only), so the replay pays them. You can also run it in the browser: open `/conseil/rejeu`, log in with the password printed by `docker compose exec ndox node dist/cli.js admin-password`, and press **Rejouer**.
 
 ## The problem
 

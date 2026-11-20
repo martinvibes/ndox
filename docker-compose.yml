@@ -8,6 +8,8 @@ services:
     environment:
       # docker default: simulated wallet, no publishing to real relays unless configured
       WALLET_MODE: ${WALLET_MODE:-fake}
+      # first start: enrol demo crews so a replay pays someone (simulated wallet only)
+      SEED_DEMO: ${SEED_DEMO:-true}
       DATABASE_PATH: /data/ndox.sqlite
       PORT: 8080
     ports:
