@@ -64,7 +64,7 @@ flowchart LR
 1. [`/verifier`](https://ndox-production.up.railway.app/verifier): open a signed event; every check is recomputed in the browser.
 2. [`/soutenir`](https://ndox-production.up.railway.app/soutenir): sponsor a crew, pay the invoice with the test wallet, get a receipt.
 3. [`/e`](https://ndox-production.up.railway.app/e): a crew's status page by 6-character code.
-4. `/conseil/rejeu` (council login): replay 27 Feb 2026 at Kayar end to end.
+4. [`/verifier?tab=rejeux`](https://ndox-production.up.railway.app/verifier?tab=rejeux): the stored replays of 27 Feb 2026 at Kayar (Danger, 10 simulated payouts). Replaying a day yourself needs the council login, so run it locally (below).
 
 ## Run it
 
