@@ -2,14 +2,7 @@
  * Design-system primitives (docs/BRIEF.md §10.3): Button, Badge, StatTile, EmptyState, ErrorState,
  * Section. Tokens live in index.css; icons are lucide at 20 px, stroke 1.75.
  */
-import {
-  AlertTriangle,
-  FlaskConical,
-  History,
-  RefreshCw,
-  TestTubeDiagonal,
-  UserRound,
-} from 'lucide-react';
+import { AlertTriangle, Coins, FlaskConical, History, RefreshCw, UserRound } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ButtonHTMLAttributes, ComponentType, ReactNode } from 'react';
 import { Link } from 'wouter';
@@ -58,7 +51,7 @@ export function LinkButton({
 export type BadgeKind = 'simulated' | 'test' | 'replay' | 'demo' | 'forecast';
 const BADGE: Record<BadgeKind, { cls: string; Icon: LucideIcon | null }> = {
   simulated: { cls: 'bg-warn-bg text-warn', Icon: FlaskConical },
-  test: { cls: 'bg-warn-bg text-warn', Icon: TestTubeDiagonal },
+  test: { cls: 'bg-warn-bg text-warn', Icon: Coins },
   replay: { cls: 'bg-ocean-50 text-ocean', Icon: History },
   demo: { cls: 'border border-line bg-bg text-muted', Icon: UserRound },
   forecast: { cls: 'border border-line bg-surface text-muted', Icon: null },

@@ -495,4 +495,41 @@ describe('seedDemo', () => {
     expect(snap.policies).toMatchObject({ covered: 4, waiting: 0 });
     expect(snap.wallet).toMatchObject({ kind: 'nwc', simulated: false, testFunds: true });
   });
+
+  it('a run cut short after paying a premium is finished by the next run, never paid twice', async () => {
+    let n = 0;
+    const faucet: TestFaucet = {
+      createWallet: async () => ({ lightningAddress: `nwc${++n}@faucet.example` }),
+    };
+    let payer: FakeWallet | undefined;
+    let flaky = true;
+    const { services, db } = await setup({}, priceFetch, (db, clock) => {
+      const seed = '88'.repeat(32);
+      const fakePool = new FakeWallet({ db, seed, account: 'pool', clock });
+      payer = new FakeWallet({ db, seed, account: 'payer', clock, openingSat: 1e7 });
+      const pool: Wallet = {
+        kind: 'nwc',
+        simulated: false,
+        makeInvoice: (a, m, e) => fakePool.makeInvoice(a, m, e),
+        payInvoice: (i) => fakePool.payInvoice(i),
+        // the relay times out: the payment lands but the pool cannot confirm it yet
+        lookupInvoice: (h) =>
+          flaky ? Promise.reject(new Error('publish timeout')) : fakePool.lookupInvoice(h),
+        getBalanceSat: () => fakePool.getBalanceSat(),
+      };
+      return { wallet: pool, testFunds: true, testPayer: payer, faucet };
+    });
+    const sleep = async () => {};
+    await expect(seedDemo(services, { perSite: 1, sleep })).rejects.toThrow(/run seed-demo again/);
+    const spentFirst = 1e7 - (await payer!.getBalanceSat());
+    expect(spentFirst).toBeGreaterThan(0); // one premium went out
+
+    flaky = false;
+    const r = await seedDemo(services, { perSite: 1, sleep });
+    expect(r).toMatchObject({ enrolled: 0, covered: 4 });
+    // the payer paid each crew's premium exactly once
+    expect(1e7 - (await payer!.getBalanceSat())).toBe(r.premiumSat);
+    const { policies } = await import('../db/schema.js');
+    expect(db.select().from(policies).all()).toHaveLength(4);
+  });
 });

@@ -32,6 +32,7 @@ describe('NWC faucet', () => {
       new NwcFaucet({
         baseUrl: 'https://faucet.example',
         fetchImpl: (async () => new Response(body, { status })) as typeof fetch,
+        sleep: async () => {},
       });
     await expect(answer('nope', 500).createWallet()).rejects.toThrow('test faucet answered 500');
     const err = await answer('nostr+walletconnect://x?secret=s3cr3t')
@@ -44,8 +45,42 @@ describe('NWC faucet', () => {
       fetchImpl: (async () => {
         throw new TypeError('fetch failed');
       }) as typeof fetch,
+      sleep: async () => {},
     });
     await expect(down.createWallet()).rejects.toThrow('test faucet unreachable');
     await expect(down.createWallet(-1)).rejects.toThrow(RangeError);
+  });
+
+  it('retries a flaky faucet (5xx, network errors) with backoff, but not a 4xx', async () => {
+    const answers = [500, 0, 200];
+    const waits: number[] = [];
+    let calls = 0;
+    const faucet = new NwcFaucet({
+      baseUrl: 'https://faucet.example',
+      fetchImpl: (async () => {
+        const status = answers[calls++]!;
+        if (status === 0) throw new TypeError('fetch failed');
+        return new Response(status === 200 ? URL_WITH_LUD16 : 'busy', { status });
+      }) as typeof fetch,
+      sleep: async (ms) => {
+        waits.push(ms);
+      },
+    });
+    expect(await faucet.createWallet()).toEqual({
+      lightningAddress: 'nwc1795176971165@getalby.com',
+    });
+    expect(waits).toEqual([1000, 2000]);
+
+    let badCalls = 0;
+    const bad = new NwcFaucet({
+      baseUrl: 'https://faucet.example',
+      fetchImpl: (async () => {
+        badCalls++;
+        return new Response('no', { status: 400 });
+      }) as typeof fetch,
+      sleep: async () => {},
+    });
+    await expect(bad.createWallet()).rejects.toThrow('test faucet answered 400');
+    expect(badCalls).toBe(1);
   });
 });

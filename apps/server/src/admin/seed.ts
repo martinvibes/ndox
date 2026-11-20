@@ -11,8 +11,8 @@
  * tops the simulated pool up to a target balance.
  */
 import { fcfaToSat, SITES } from '@ndox/shared';
-import { and, eq, gt, inArray } from 'drizzle-orm';
-import { crews, policies } from '../db/schema.js';
+import { and, desc, eq, gt, inArray } from 'drizzle-orm';
+import { crews, deposits, policies } from '../db/schema.js';
 import { enrolCrew } from '../pool/crews.js';
 import { createDeposit, refreshDeposit, weeklyPremiumFor } from '../pool/deposits.js';
 import { createPolicy } from '../pool/policies.js';
@@ -29,6 +29,8 @@ export interface SeedDemoOptions {
    * payer. Ignored with a mainnet wallet.
    */
   poolFcfa?: number;
+  /** Waits between confirmation retries (tests pass a no-op). */
+  sleep?: (ms: number) => Promise<void>;
 }
 
 export interface SeedDemoResult {
@@ -61,15 +63,34 @@ export async function seedDemo(s: Services, o: SeedDemoOptions = {}): Promise<Se
           account: 'demo-premiums',
           clock: s.clock,
         });
+  const sleep = o.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
+  /** Asks the pool wallet until the deposit is paid; NWC relays sometimes time out. */
+  const settled = async (ctx: typeof s.money, hash: string, tries: number): Promise<boolean> => {
+    for (let i = 0; i < tries; i++) {
+      if (i > 0) await sleep(1000 * 2 ** (i - 1));
+      const after = await refreshDeposit(ctx, hash).catch(() => undefined);
+      if (after?.status === 'paid') return true;
+      if (after?.status === 'expired') return false;
+    }
+    return false;
+  };
   const pay = async (
     ctx: typeof s.money,
     d: { paymentHash: string | null; invoice: string | null },
   ) => {
-    if (testPayer) await testPayer.payInvoice(d.invoice!);
-    else if (!(wallet as FakeWallet).simulatePayment(d.paymentHash!))
+    const hash = d.paymentHash!;
+    if (testPayer) {
+      try {
+        await testPayer.payInvoice(d.invoice!);
+      } catch (err) {
+        // the payment may have gone through even though the answer was lost
+        if (!(await settled(ctx, hash, 1))) throw err;
+      }
+    } else if (!(wallet as FakeWallet).simulatePayment(hash)) {
       throw new Error('simulated payment refused');
-    const after = await refreshDeposit(ctx, d.paymentHash!);
-    if (after?.status !== 'paid') throw new Error('demo deposit did not settle');
+    }
+    if (!(await settled(ctx, hash, 4)))
+      throw new Error('demo deposit not confirmed yet: run seed-demo again to finish it');
   };
   const now = s.clock();
   const settings = s.settings();
@@ -134,14 +155,47 @@ export async function seedDemo(s: Services, o: SeedDemoOptions = {}): Promise<Se
   let premiumSat = 0;
   for (const crew of demoCrews) {
     if (coveredNow.has(crew.id)) continue;
-    const policy = createPolicy(s.db, {
-      crewId: crew.id,
-      fundedBy: 'clpa',
-      weeks,
-      payoutFcfa: settings.payoutFcfa,
-      premiumWeeklyFcfa: weeklyPremiumFor(s.money, s.db, crew.site),
-    });
-    const d = await createDeposit(backdated, { kind: 'premium', policyId: policy.id });
+    // an earlier run may have stopped half-way: finish that policy, never pay a premium twice
+    const unfinished = s.db
+      .select()
+      .from(policies)
+      .where(and(eq(policies.crewId, crew.id), eq(policies.status, 'pending')))
+      .orderBy(desc(policies.createdAt))
+      .get();
+    const policy =
+      unfinished ??
+      createPolicy(s.db, {
+        crewId: crew.id,
+        fundedBy: 'clpa',
+        weeks,
+        payoutFcfa: settings.payoutFcfa,
+        premiumWeeklyFcfa: weeklyPremiumFor(s.money, s.db, crew.site),
+      });
+    const open = unfinished
+      ? s.db
+          .select()
+          .from(deposits)
+          .where(
+            and(
+              eq(deposits.policyId, policy.id),
+              eq(deposits.kind, 'premium'),
+              eq(deposits.status, 'pending'),
+            ),
+          )
+          .orderBy(desc(deposits.createdAt))
+          .get()
+      : undefined;
+    if (open && (await settled(backdated, open.paymentHash!, 1))) {
+      covered++;
+      premiumSat += open.amountSat;
+      continue;
+    }
+    const stillOpen =
+      open &&
+      s.db.select().from(deposits).where(eq(deposits.id, open.id)).get()?.status === 'pending';
+    const d = stillOpen
+      ? open
+      : await createDeposit(backdated, { kind: 'premium', policyId: policy.id });
     await pay(backdated, d);
     covered++;
     premiumSat += d.amountSat;

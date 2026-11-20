@@ -266,7 +266,8 @@ export default function Sponsor() {
         </form>
       )}
 
-      {meta.data?.poolLightningAddress && (
+      {/* zaps carry real sats: a test-network pool cannot receive them */}
+      {meta.data?.poolLightningAddress && !meta.data.testFunds && (
         <section aria-labelledby="zap" className="mt-12 border-t border-line pt-8">
           <h2 id="zap" className="flex items-center gap-2 text-lg font-semibold text-ink">
             <Zap {...ICON} />

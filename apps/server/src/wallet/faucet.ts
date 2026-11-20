@@ -34,28 +34,49 @@ export class NwcFaucet implements TestFaucet {
   private readonly baseUrl: string;
   private readonly fetchImpl: typeof fetch;
   private readonly timeoutMs: number;
+  private readonly attempts: number;
+  private readonly sleep: (ms: number) => Promise<void>;
 
-  constructor(o: { baseUrl: string; fetchImpl?: typeof fetch; timeoutMs?: number }) {
+  constructor(o: {
+    baseUrl: string;
+    fetchImpl?: typeof fetch;
+    timeoutMs?: number;
+    /** The public faucet sometimes answers 5xx: try this many times (1 s, 2 s, 4 s … apart). */
+    attempts?: number;
+    sleep?: (ms: number) => Promise<void>;
+  }) {
     this.baseUrl = o.baseUrl.replace(/\/+$/, '');
     this.fetchImpl = o.fetchImpl ?? fetch;
     this.timeoutMs = o.timeoutMs ?? 15_000;
+    this.attempts = o.attempts ?? 4;
+    this.sleep = o.sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
   }
 
   async createWallet(balanceSat = 0): Promise<{ lightningAddress: string }> {
     if (!Number.isSafeInteger(balanceSat) || balanceSat < 0)
       throw new RangeError('balanceSat must be a non-negative integer');
-    let res: Response;
-    try {
-      res = await this.fetchImpl(`${this.baseUrl}/?balance=${balanceSat}`, {
-        method: 'POST',
-        signal: AbortSignal.timeout(this.timeoutMs),
-      });
-    } catch {
-      throw new FaucetError('test faucet unreachable');
+    let last: FaucetError = new FaucetError('test faucet unreachable');
+    for (let i = 0; i < this.attempts; i++) {
+      if (i > 0) await this.sleep(1000 * 2 ** (i - 1));
+      let res: Response;
+      try {
+        res = await this.fetchImpl(`${this.baseUrl}/?balance=${balanceSat}`, {
+          method: 'POST',
+          signal: AbortSignal.timeout(this.timeoutMs),
+        });
+      } catch {
+        last = new FaucetError('test faucet unreachable');
+        continue;
+      }
+      if (!res.ok) {
+        last = new FaucetError(`test faucet answered ${res.status}`);
+        if (res.status >= 500 || res.status === 429) continue;
+        throw last;
+      }
+      const lightningAddress = lud16Of((await res.text()).trim());
+      if (!lightningAddress) throw new FaucetError('test faucet returned no Lightning address');
+      return { lightningAddress };
     }
-    if (!res.ok) throw new FaucetError(`test faucet answered ${res.status}`);
-    const lightningAddress = lud16Of((await res.text()).trim());
-    if (!lightningAddress) throw new FaucetError('test faucet returned no Lightning address');
-    return { lightningAddress };
+    throw last;
   }
 }
